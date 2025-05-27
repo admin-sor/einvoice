@@ -1,0 +1,356 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../app/constants.dart';
+import '../provider/dio_provider.dart';
+import '../repository/do_repository.dart';
+import 'fx_auto_completion_unit.dart';
+import 'fx_text_field.dart';
+
+class FxAutoCompletionMaterial extends HookConsumerWidget {
+  final double? width;
+  final String value;
+  final String? labelText;
+  final String? hintText;
+  final void Function(
+    double qty,
+    String drumNum,
+  )? onUpdateQty;
+  final void Function(AcMaterialModel model)? onSelectedMaterial;
+  final void Function(UnitModel?)? onUpdatePackUnit;
+  final void Function(String)? onUpdatePackQty;
+
+  final String errorMessage;
+  final String errorMessageQty;
+  final String errorMessagePackQty;
+  final String errorMessageDrumNo;
+  const FxAutoCompletionMaterial(
+      {Key? key,
+      this.width,
+      this.hintText,
+      this.labelText,
+      this.value = "",
+      this.onUpdateQty,
+      this.onSelectedMaterial,
+      this.onUpdatePackUnit,
+      this.onUpdatePackQty,
+      this.errorMessage = "",
+      this.errorMessageQty = "",
+      this.errorMessageDrumNo = "",
+      this.errorMessagePackQty = ""})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final maxWidth = width == null ? 400.0 : width!;
+    final initialValue = TextEditingValue(text: value);
+    final cancelToken = useState(CancelToken());
+    final firstModel = useState<AcMaterialModel?>(null);
+    final selectedModel = useState<AcMaterialModel?>(null);
+    final ctrlDrumNum = useTextEditingController(text: "");
+    final ctrlQty = useTextEditingController(text: "");
+    final fcDrumNum = FocusNode();
+    void Function() isReady;
+    isReady = () {
+      if (selectedModel.value == null) {
+        return;
+      }
+      if (onSelectedMaterial != null) onSelectedMaterial!(selectedModel.value!);
+
+      if (selectedModel.value!.isCable == "Y" && ctrlDrumNum.text == "") {
+        return;
+      }
+      if (ctrlQty.text == "") {
+        return;
+      }
+      if (onUpdateQty != null) {
+        String drumNum = "";
+        if (selectedModel.value!.isCable == "Y") {
+          drumNum = ctrlDrumNum.text;
+        }
+        try {
+          double qty = double.parse(ctrlQty.text);
+          onUpdateQty!(
+            qty,
+            drumNum,
+          );
+        } catch (_) {}
+      }
+    };
+
+    selectedModel.addListener(() {
+      isReady();
+    });
+    ctrlDrumNum.addListener(() {
+      isReady();
+    });
+    ctrlQty.addListener(() {
+      isReady();
+    });
+    if (selectedModel.value != null &&
+        selectedModel.value?.isCable == "Y" &&
+        ctrlDrumNum.text == "") {
+      //Timer(Duration(milliseconds: 300), () {
+      //  fcDrumNum.requestFocus();
+      //});
+    }
+    final ctrlUnit = useTextEditingController(text: "");
+    final ctrlPackQty =
+        useTextEditingController(text: selectedModel.value?.packQty ?? "");
+    final selectedPackUnit = useState<UnitModel?>(null);
+
+    ctrlPackQty.addListener(() {
+      if (onUpdatePackQty != null) onUpdatePackQty!(ctrlPackQty.text);
+    });
+    selectedPackUnit.addListener(() {
+      if (onUpdatePackUnit != null) onUpdatePackUnit!(selectedPackUnit.value);
+    });
+    if (selectedModel.value != null) {
+      ctrlUnit.text = selectedModel.value!.unit;
+      if (selectedModel.value!.packUnit != "") {
+        selectedPackUnit.value = UnitModel(
+            unit: selectedModel.value!.packUnit,
+            unitDesc: "",
+            unitId: selectedModel.value!.packUnitId);
+      } else {
+        selectedPackUnit.value = UnitModel(
+            unit: selectedModel.value!.unit,
+            unitDesc: "",
+            unitId: selectedModel.value!.unitId);
+      }
+    } else {
+      ctrlUnit.text = "";
+      ctrlPackQty.text = "";
+      selectedPackUnit.value = null;
+    }
+    return Column(
+      children: [
+        RawAutocomplete<AcMaterialModel>(
+          initialValue: initialValue,
+          onSelected: (model) {
+            selectedModel.value = model;
+          },
+          displayStringForOption: (model) {
+            return model.materialCode;
+          },
+          fieldViewBuilder: (ctx, ctrl, fc, fn) {
+            if (value == "" && ctrl.text == "" && selectedModel.value != null) {
+              //ctrl.text = value;
+            }
+            return FxTextField(
+              errorMessage: errorMessage,
+              labelText: labelText,
+              hintText: hintText,
+              ctrl: ctrl,
+              focusNode: fc,
+              width: maxWidth,
+              suffix: firstModel.value == null
+                  ? null
+                  : SizedBox(
+                      width: maxWidth - 180,
+                      child: Text(
+                        firstModel.value?.description ?? "",
+                        style: TextStyle(
+                          fontSize: 16,
+                          overflow: TextOverflow.ellipsis,
+                          color: Constants.greenDark.withOpacity(0.8),
+                        ),
+                      ),
+                    ),
+              onSubmitted: (v) {
+                if (firstModel.value != null) {
+                  ctrl.text = firstModel.value!.materialCode;
+                  selectedModel.value = firstModel.value;
+                }
+              },
+            );
+          },
+          optionsViewBuilder: (context, onSelected, listModel) {
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Constants.greenDark),
+                  ),
+                  width: maxWidth,
+                  height: 500,
+                  child: ListView.builder(
+                    itemCount: listModel.length,
+                    itemBuilder: (context, idx) {
+                      final model = listModel.elementAt(idx);
+                      return InkWell(
+                        onTap: () {
+                          onSelected(model);
+                        },
+                        child: Container(
+                          color: (idx % 2 == 1)
+                              ? Colors.blue.withOpacity(0.2)
+                              : null,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  model.materialCode,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    model.description,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+          optionsBuilder: (editingValue) async {
+            if (editingValue.text == "") {
+              return [];
+            }
+            if (editingValue.text.length >= 10) {
+              return [];
+            }
+            try {
+              //cancelToken.value.cancel("Cancel Mine");
+              //cancelToken.value = CancelToken();
+            } catch (_) {}
+            final dio = ref.read(dioProvider);
+            try {
+              final result = await DoRepository(dio: dio).acMaterial(
+                search: editingValue.text,
+                //cancelToken: cancelToken.value,
+              );
+              if (result.isNotEmpty) firstModel.value = result[0];
+              return result;
+            } catch (e) {
+              return [];
+            }
+          },
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            FxTextField(
+              errorMessage: errorMessageDrumNo,
+              enabled: selectedModel.value?.isCable == "Y",
+              width: maxWidth / 2 - 40,
+              ctrl: ctrlDrumNum,
+              focusNode: fcDrumNum,
+              hintText: "Drum No.",
+              labelText: "Drum No.",
+            ),
+            FxTextField(
+                errorMessage: errorMessageQty,
+                width: maxWidth / 2,
+                ctrl: ctrlQty,
+                hintText: "Received Qty",
+                labelText: "Received Qty"),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            FxTextField(
+              enabled: false,
+              width: maxWidth / 3 - 10,
+              ctrl: ctrlUnit,
+              hintText: "Unit",
+              labelText: "Unit",
+            ),
+            FxAutoCompletionUnit(
+              width: maxWidth / 3 - 10,
+              labelText: "Pack Unit",
+              hintText: "Pack Unit",
+              value: selectedPackUnit.value?.unit ?? "",
+              onSelected: (model) {
+                selectedPackUnit.value = model;
+              },
+              initialModel: selectedPackUnit.value,
+            ),
+            FxTextField(
+              errorMessage: errorMessagePackQty,
+              width: maxWidth / 3 - 10,
+              ctrl: ctrlPackQty,
+              hintText: "Pack Qty",
+              labelText: "Pack Qty",
+            ),
+          ],
+        )
+      ],
+    );
+  }
+}
+
+class AcMaterialModel {
+  late String description;
+  late String isCable;
+  late String materialCode;
+  late String materialId;
+  late String unit;
+  late String unitId;
+  late String packUnitId;
+  late String packUnit;
+  late String packQty;
+
+  AcMaterialModel({
+    required this.description,
+    required this.isCable,
+    required this.materialCode,
+    required this.materialId,
+    required this.unit,
+  });
+
+  AcMaterialModel.fromJson(Map<String, dynamic> json) {
+    description = json['description'];
+    isCable = json['is_cable'];
+    materialCode = json['material_code'];
+    materialId = json['material_id'];
+    unit = json['unit'];
+    unitId = json['unit_id'];
+    packUnit = json['pack_unit'] ?? "";
+    packUnitId = json['pack_unit_id'] ?? "";
+    packQty = json['pack_qty'] ?? "";
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['description'] = description;
+    data['is_cable'] = isCable;
+    data['material_code'] = materialCode;
+    data['material_id'] = materialId;
+    data['unit'] = unit;
+    data['unit_id'] = unitId;
+    data['pack_unit'] = packUnit;
+    data['pack_qty'] = packQty;
+    data['pack_unit_id'] = packUnitId;
+    return data;
+  }
+}
