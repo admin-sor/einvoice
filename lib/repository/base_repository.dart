@@ -30,7 +30,6 @@ abstract class BaseRepository {
         options: dioOption,
         cancelToken: cancelToken,
       );
-
       if (response.statusCode != 200) {
         throw BaseRepositoryException(
           message: "Invalid Http Response ${response.statusCode}",

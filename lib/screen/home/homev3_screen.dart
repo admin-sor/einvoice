@@ -69,7 +69,7 @@ class Homev3Screen extends HookConsumerWidget {
         appBar: AppBar(
           centerTitle: true,
           backgroundColor: Colors.transparent,
-          title: const Text("Inventory",
+          title: Text(Constants.appTitle,
               style: TextStyle(
                 color: Constants.colorHomeV3GreenDark,
                 fontSize: 26.3,

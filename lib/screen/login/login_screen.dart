@@ -30,8 +30,8 @@ class LoginScreen extends HookConsumerWidget {
         );
         Constants.host = l.host ?? "tkdev.sor.my";
         Constants.clientName = l.clientName ?? "Client not Configured";
-        Constants.baseUrl = "https://${Constants.host}/sor_inv_api/";
-        Constants.reportUrl = "https://${Constants.host}/reports/";
+        Constants.baseUrl = "https://${Constants.host}/einvoice_api/";
+        Constants.reportUrl = "https://${Constants.host}/einvoice_reports/";
 
         if (l.screen != null && l.screen!.isNotEmpty) {
           ref.read(screenProvider.notifier).state = l.screen!;
@@ -109,8 +109,8 @@ class _LoginBody extends HookConsumerWidget {
       } else if (next is LoginStateDone) {
         Constants.host = next.loginModel.host ?? "tkdev.sor.my";
         Constants.clientName = next.loginModel.clientName ?? "Unknown Client";
-        Constants.baseUrl = "https://${Constants.host}/sor_inv_api/";
-        Constants.reportUrl = "https://${Constants.host}/reports/";
+        Constants.baseUrl = "https://${Constants.host}/einvoice_api/";
+        Constants.reportUrl = "https://${Constants.host}/einvoice_reports/";
         Navigator.of(context).pushReplacementNamed(
           homeV3Route,
         );

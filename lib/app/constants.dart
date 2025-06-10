@@ -47,16 +47,16 @@ class Constants {
   static const Color textNotFromVendor = Color(0xff02a951);
   static String host = "tkdev.sor.my";
   /* static const host = "anddemo.sor.com.my"; */
-  static String baseUrl = "https://$host/sor_inv_api/";
+  static String baseUrl = "https://$host/einvoice_api/";
   static String clientName = "clientName";
-  static String reportUrl = "https://$host/report/";
+  static String reportUrl = "https://$host/einvoice_report/";
 
   static const Color buttonPositiveColor = Color(0xff65d372);
   static const fontExtraBigSize = 22.0;
   static const fontBigSize = 18.0;
   static const fontMediumSize = 16.0;
   static const fontSmallSize = 14.0;
-  static String appTitle = "Smart Inventory";
+  static String appTitle = "eInvoice";
   static String appSubTitle = "";
   static String appVersion = "v1.1";
 

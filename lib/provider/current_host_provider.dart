@@ -15,10 +15,10 @@ class CurrentConfig {
     required this.clientName,
   });
   String baseUrl() {
-    return "https://$host/sor_inv_api/";
+    return "https://$host/einvoice_api/";
   }
 
   String reportUrl() {
-    return "https://$host/reports/";
+    return "https://$host/einvoice_reports/";
   }
 }
