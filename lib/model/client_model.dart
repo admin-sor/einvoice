@@ -1,3 +1,12 @@
+/*
+evClientCurrency
+evClientCurrencyConverter
+evClientCountry
+evClientCity
+evClientPostal
+evClientState
+evClientBusinessRegType 
+*/
 class ClientModel {
   String? evClientID;
   String? evClientName;
@@ -10,6 +19,11 @@ class ClientModel {
   String? evClientPic;
   String? evClientEmail;
   String? evClientPhone;
+  String? evClientCountry;
+  String? evClientCity;
+  String? evClientPostal;
+  String? evClientState;
+  String? evClientBusinessRegType;
 
   ClientModel({
     this.evClientID,
@@ -23,6 +37,11 @@ class ClientModel {
     this.evClientPic,
     this.evClientEmail,
     this.evClientPhone,
+    this.evClientCountry,
+    this.evClientCity,
+    this.evClientPostal,
+    this.evClientState,
+    this.evClientBusinessRegType,
   });
 
   factory ClientModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +57,11 @@ class ClientModel {
       evClientPic: json['evClientPic'] ?? "",
       evClientEmail: json['evClientEmail'] ?? "",
       evClientPhone: json['evClientPhone'] ?? "",
+      evClientCountry: json['evClientCountry'] ?? "",
+      evClientCity: json['evClientCity'] ?? "",
+      evClientPostal: json['evClientPostal'] ?? "",
+      evClientState: json['evClientState'] ?? "",
+      evClientBusinessRegType: json['evClientBusinessRegType'] ?? "",
     );
   }
 
@@ -54,6 +78,11 @@ class ClientModel {
       'evClientPic': evClientPic,
       'evClientEmail': evClientEmail,
       'evClientPhone': evClientPhone,
+      'evClientCountry': evClientCountry,
+      'evClientCity': evClientCity,
+      'evClientPostal': evClientPostal,
+      'evClientState': evClientState,
+      'evClientBusinessRegType': evClientBusinessRegType,
     };
   }
 }

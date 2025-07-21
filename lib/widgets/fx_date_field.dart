@@ -103,7 +103,7 @@ class FxDateField extends HookWidget {
                         onTap: () async {
                           final newDate = await showDatePicker(
                             context: context,
-                            initialDate: DateTime.now(),
+                            initialDate: dateValue,
                             firstDate: firstDate,
                             lastDate: lastDate,
                           );

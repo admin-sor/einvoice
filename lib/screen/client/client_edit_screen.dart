@@ -3,11 +3,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sor_inventory/model/client_model.dart';
 import 'package:sor_inventory/screen/client/client_edit_provider.dart';
+import 'package:sor_inventory/widgets/fx_id_type_lk.dart';
 import '../../app/constants.dart';
 import '../../widgets/end_drawer.dart';
 import '../../widgets/fx_button.dart';
 import '../../widgets/fx_gray_dark_text.dart';
 import '../../widgets/fx_text_field.dart';
+import 'client_delete_provider.dart';
 
 class ClientEditScreen extends HookConsumerWidget {
   final ClientModel client;
@@ -46,7 +48,8 @@ class ClientEditScreen extends HookConsumerWidget {
         Navigator.of(context).pop(); // Pop screen on successful save
       }
     });
-
+    final ctrlIdType =
+        useTextEditingController(text: client.evClientBusinessRegType ?? "BRN");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.colorAppBarBg,
@@ -120,11 +123,32 @@ class ClientEditScreen extends HookConsumerWidget {
                   // Add validation indicator if needed
                 ),
                 const SizedBox(height: 10),
-                FxTextField(
-                  ctrl: ctrlBusinessRegNo,
-                  labelText: "Business Reg No",
-                  hintText: "Business Reg No",
-                  width: double.infinity,
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: FxTextField(
+                        ctrl: ctrlBusinessRegNo,
+                        labelText: "Business Reg No",
+                        hintText: "Business Reg No",
+                        width: double.infinity,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                        child: FxFilterIdTypeLk(
+                      labelText: "Type",
+                      hintText: "Type",
+                      initialValue: IdTypeLkModel(
+                          client.evClientBusinessRegType ?? "BRN",
+                          client.evClientBusinessRegType ?? "BRN"),
+                      onChanged: (m) {
+                        ctrlIdType.text = m.code;
+                      },
+                    )),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 FxTextField(
@@ -226,6 +250,7 @@ class ClientEditScreen extends HookConsumerWidget {
                                 evClientID:
                                     int.tryParse(client.evClientID ?? "0") ??
                                         0, // Convert ID to int
+                            evClientBusinessRegType: ctrlIdType.text,
                                 evClientName: ctrlName.text.trim(),
                                 evClientBusinessRegNo:
                                     ctrlBusinessRegNo.text.trim(),
@@ -242,6 +267,22 @@ class ClientEditScreen extends HookConsumerWidget {
                         },
                       ),
                     ),
+                    const SizedBox(width: 20),
+                    if (client.evClientID != null)
+                      Expanded(
+                        child: FxButton(
+                          title: "Delete",
+                          color: Constants.red,
+                          onPress: () {
+                            ref.read(clientDeleteProvider.notifier).delete(
+                                  clientId: int.parse(client.evClientID!),
+                                  query: query,
+                                );
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                    if (client.evClientID != null) const SizedBox(width: 20),
                   ],
                 ),
                 const SizedBox(height: 20), // Add some space at the bottom

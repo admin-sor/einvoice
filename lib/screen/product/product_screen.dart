@@ -221,6 +221,14 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Row(
       children: [
+        SizedBox(
+          width: 120,
+          child: FxBlackText(
+            title: "Code",
+            color: Constants.greenDark,
+            isBold: false,
+          ),
+        ),
         Expanded(
             child: FxBlackText(
           title: "Description",
@@ -274,6 +282,12 @@ class _ProductDetailRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: Row(
           children: [
+            SizedBox(
+                width: 120,
+                child: FxBlackText(
+                  title: product.evProductCode ?? "",
+                  isBold: false,
+                )),
             Expanded(
                 child: FxBlackText(
               title: product.evProductDescription ?? "",

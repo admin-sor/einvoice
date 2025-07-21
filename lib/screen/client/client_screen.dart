@@ -154,7 +154,10 @@ class ClientScreen extends HookConsumerWidget {
                     width: 1300, // Adjust width as needed
                     child: Column(
                       children: [
-                        const _Header(), // Keep _Header structure, will modify below
+                        _Header(
+                            model: listClient.value.isNotEmpty
+                                ? listClient.value[0]
+                                : null), // Keep _Header structure, will modify below
                         const Divider(
                           color: Constants.greenDark,
                         ),
@@ -213,11 +216,12 @@ class ClientScreen extends HookConsumerWidget {
 
 // Helper widget for header row
 class _Header extends StatelessWidget {
-  const _Header({Key? key}) : super(key: key);
+  final ClientModel? model;
+  _Header({Key? key, required this.model}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
         Expanded(
             child: FxBlackText(
@@ -235,7 +239,7 @@ class _Header extends StatelessWidget {
         SizedBox(
             width: 150,
             child: FxBlackText(
-              title: "Business Reg No",
+              title: model?.evClientBusinessRegType ?? "BRN",
               color: Constants.greenDark,
               isBold: false,
             )),

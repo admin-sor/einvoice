@@ -5,6 +5,15 @@ import '../model/client_model.dart';
 class ClientRepository extends BaseRepository {
   ClientRepository({required super.dio});
 
+  //get client
+  Future<ClientModel> get({
+    required String clientID,
+  }) async {
+    String service = "client/get/$clientID";
+    final resp = await postWoToken(param: {}, service: service);
+    return ClientModel.fromJson(resp["data"]);
+  }
+
   /// Searches for clients based on a query.
   Future<List<ClientModel>> search({
     required String query,
@@ -27,6 +36,7 @@ class ClientRepository extends BaseRepository {
   Future<bool> add({
     required String evClientName,
     required String evClientBusinessRegNo,
+    required String evClientBusinessRegType,
     required String evClientSstNo,
     required String evClientTinNo,
     required String evClientAddr1,
@@ -41,6 +51,7 @@ class ClientRepository extends BaseRepository {
     final param = {
       "evClientName": evClientName,
       "evClientBusinessRegNo": evClientBusinessRegNo,
+      "evClientBusinessRegType": evClientBusinessRegType,
       "evClientSstNo": evClientSstNo,
       "evClientTinNo": evClientTinNo,
       "evClientAddr1": evClientAddr1,
@@ -61,6 +72,7 @@ class ClientRepository extends BaseRepository {
     required int evClientID, // Assuming int based on typical IDs
     required String evClientName,
     required String evClientBusinessRegNo,
+    required String evClientBusinessRegType,
     required String evClientSstNo,
     required String evClientTinNo,
     required String evClientAddr1,
@@ -76,6 +88,7 @@ class ClientRepository extends BaseRepository {
       "evClientID": evClientID,
       "evClientName": evClientName,
       "evClientBusinessRegNo": evClientBusinessRegNo,
+      "evClientBusinessRegType": evClientBusinessRegType,
       "evClientSstNo": evClientSstNo,
       "evClientTinNo": evClientTinNo,
       "evClientAddr1": evClientAddr1,

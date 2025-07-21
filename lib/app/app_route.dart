@@ -1,9 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sor_inventory/screen/client/client_edit_screen.dart';
+import 'package:sor_inventory/screen/invoice_screen/invoice_edit_screen.dart';
+import 'package:sor_inventory/screen/invoice_screen/invoice_screen.dart';
+import 'package:sor_inventory/screen/invoice_v2/invoice_v2_screen.dart';
+import 'package:sor_inventory/screen/invoice_v2/invoice_v2_sum_screen.dart';
 import 'package:sor_inventory/screen/product/product_edit_screen.dart';
 
 import '../model/client_model.dart';
+import '../model/invoice_model.dart';
+import '../model/invoice_v2_model.dart';
 import '../model/product_model.dart';
 import '../screen/client/client_screen.dart';
 import '../screen/home/home_screen.dart';
@@ -22,6 +28,13 @@ const clientEditRoute = "/clientEditRoute";
 const productRoute = "/productRoute";
 const productEditRoute = "/productEditRoute";
 
+const invoiceRoute = "/invoiceRoute";
+const invoiceEditRoute = "/invoiceEditRoute";
+const invoiceSumRoute = "/invoiceSumRoute";
+
+const invoiceEvRoute = "/invoiceV2Route";
+const invoiceEvEditRoute = "/invoiceV2EditRoute";
+
 class AppRoute {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     if (settings.name == subHomeRoute) {
@@ -32,11 +45,57 @@ class AppRoute {
         ),
       );
     }
+
+    //InvoiceSumScreen
+    // if (settings.name == invoiceSumRoute) {
+    //   return MaterialPageRoute(
+    //     builder: (context) => MediaQuery(
+    //       data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+    //       child: InvoiceSummaryScreen(),
+    //     ),
+    //   );
+    // }
+    //InvoiceScreen
+    if (settings.name == invoiceRoute) {
+      final args = settings.arguments as Map<String, dynamic>?;
+      final invoiceModel = args?['model'] as InvoiceV2Model?;
+      final fromSummary = (args?['fromSummary'] ?? false) as bool;
+      final client = args?['client'] as ClientModel?;
+      final startDate = (args?['startDate'] ?? "") as String;
+      final endDate = (args?['endDate'] ?? "") as String;
+      final detail = args?['detail'] as List<InvoiceDetailModel>?;
+
+      return MaterialPageRoute(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: InvoiceV2Screen(
+            fromSummary: fromSummary,
+            startDate: startDate,
+            endDate: endDate,
+            client: client,
+            invoiceModel: invoiceModel,
+            detail: detail,
+          ),
+        ),
+      );
+    }
+    if (settings.name == invoiceEditRoute) {
+      final args = settings.arguments as Map<String, dynamic>?;
+      final invoice = args?['invoice'] as InvoiceModel?;
+      final query = (args?['query'] ?? "") as String;
+
+      return MaterialPageRoute(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: InvoiceEditScreen(invoice: invoice!, query: query),
+        ),
+      );
+    }
     if (settings.name == productRoute) {
       return MaterialPageRoute(
         builder: (context) => MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-          child: ProductScreen(),
+          child: const ProductScreen(),
         ),
       );
     }

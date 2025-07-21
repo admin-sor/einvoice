@@ -18,9 +18,14 @@ class ProductEditNotifier extends StateNotifier<ProductEditState> {
 
   void edit({
     required String evProductID,
+    required String evProductCode,
     required String evProductDescription,
     required String evProductUnit,
     required String evProductPrice,
+    required String evProductTaxCategory,
+    required String evProductClassification,
+    required String evProductTaxReason,
+    required String evProductTaxPercent,
     required String query, // Parameter to refresh search results
   }) async {
     state = ProductEditStateLoading();
@@ -33,9 +38,14 @@ class ProductEditNotifier extends StateNotifier<ProductEditState> {
       await ProductRepository(dio: ref.read(dioProvider)).edit(
         token: loginModel!.token!,
         evProductID: evProductID,
+        evProductCode: evProductCode,
         evProductDescription: evProductDescription,
         evProductUnit: evProductUnit,
         evProductPrice: evProductPrice,
+        evProductTaxPercent: evProductTaxPercent,
+        evProductTaxReason: evProductTaxReason,
+        evProductClassification: evProductClassification,
+        evProductTaxCategory: evProductTaxCategory,
       );
       ref.read(productSearchProvider.notifier).search(query: query);
       state = ProductEditStateDone();

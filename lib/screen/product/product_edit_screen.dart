@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sor_inventory/model/product_model.dart';
+import 'package:sor_inventory/screen/product/product_delete_provider.dart';
 import 'package:sor_inventory/screen/product/product_edit_provider.dart';
 import '../../app/constants.dart';
 import '../../widgets/end_drawer.dart';
@@ -23,10 +24,21 @@ class ProductEditScreen extends HookConsumerWidget {
     final isLoading = useState(false);
     final errorMessage = useState("");
 
+    final ctrlCode =
+        useTextEditingController(text: product.evProductCode ?? "");
     final ctrlName =
         useTextEditingController(text: product.evProductDescription);
     final ctrlUnit = useTextEditingController(text: product.evProductUnit);
     final ctrlPrice = useTextEditingController(text: product.evProductPrice);
+
+    final ctrlClassification =
+        useTextEditingController(text: product.evProductClassification);
+    final ctrlTaxCategory =
+        useTextEditingController(text: product.evProductTaxCategory);
+    final ctrlTaxReason =
+        useTextEditingController(text: product.evProductTaxReason);
+    final ctrlTaxPercent =
+        useTextEditingController(text: product.evProductTaxPercent);
 
     ref.listen(productEditProvider, (prev, next) {
       if (next is ProductEditStateLoading) {
@@ -94,6 +106,14 @@ class ProductEditScreen extends HookConsumerWidget {
               children: [
                 const SizedBox(height: Constants.paddingTopContent),
                 FxTextField(
+                  ctrl: ctrlCode,
+                  labelText: "Code",
+                  hintText: "Code",
+                  width: double.infinity,
+                  // Add validation indicator if needed
+                ),
+                const SizedBox(height: 10),
+                FxTextField(
                   ctrl: ctrlName,
                   labelText: "Description",
                   hintText: "Description",
@@ -112,6 +132,36 @@ class ProductEditScreen extends HookConsumerWidget {
                   ctrl: ctrlPrice,
                   labelText: "Price",
                   hintText: "Price",
+                  width: double.infinity,
+                ),
+
+                const SizedBox(height: 20),
+                FxTextField(
+                  ctrl: ctrlClassification,
+                  labelText: "Classification",
+                  hintText: "Classification",
+                  width: double.infinity,
+                ),
+
+                const SizedBox(height: 20),
+                FxTextField(
+                  ctrl: ctrlTaxPercent,
+                  labelText: "Tax %",
+                  hintText: "Tax %",
+                  width: double.infinity,
+                ),
+                const SizedBox(height: 20),
+                FxTextField(
+                  ctrl: ctrlTaxReason,
+                  labelText: "Tax Reason",
+                  hintText: "Tax Reason",
+                  width: double.infinity,
+                ),
+                const SizedBox(height: 20),
+                FxTextField(
+                  ctrl: ctrlTaxCategory,
+                  labelText: "Tax Category",
+                  hintText: "Tax Category",
                   width: double.infinity,
                 ),
                 const SizedBox(height: 20),
@@ -153,16 +203,42 @@ class ProductEditScreen extends HookConsumerWidget {
                           errorMessage.value = "";
 
                           ref.read(productEditProvider.notifier).edit(
+                                evProductCode: ctrlCode.text.trim(),
                                 evProductID: product.evProductID ??
                                     "0", // Convert ID to int
                                 evProductDescription: ctrlName.text.trim(),
                                 evProductUnit: ctrlUnit.text.trim(),
                                 evProductPrice: ctrlPrice.text.trim(),
+                                evProductTaxPercent: ctrlTaxPercent.text.trim(),
+                                evProductTaxReason: ctrlTaxReason.text.trim(),
+                                evProductClassification:
+                                    ctrlClassification.text.trim(),
+                                evProductTaxCategory:
+                                    ctrlTaxCategory.text.trim(),
                                 query: query, // Pass the original search query
                               );
                         },
                       ),
                     ),
+                    const SizedBox(width: 20),
+                    if (product.evProductID != null)
+                      Expanded(
+                        child: FxButton(
+                          title: "Delete",
+                          color: Constants.red,
+                          onPress: () {
+                            ref.read(productDeleteProvider.notifier).delete(
+                                  productId: int.parse(product.evProductID!),
+                                  query: query,
+                                );
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                    if (product.evProductID != null)
+                      const SizedBox(
+                        width: 20,
+                      )
                   ],
                 ),
                 const SizedBox(height: 20), // Add some space at the bottom

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:sor_inventory/repository/invoice_repository.dart';
 
 import '../app/constants.dart';
 import '../model/payment_term_response_model.dart';
@@ -86,8 +87,8 @@ class FxPaymentTermLk extends HookConsumerWidget {
       isInit.value = false;
       WidgetsBinding.instance.addPostFrameCallback((tmr) async {
         try {
-          final resp = await PoRepository(dio: ref.read(dioProvider))
-              .paymentTermLookup(vendorID: vendorID);
+          final resp = await InvoiceRepository(dio: ref.read(dioProvider))
+              .paymentTermLookup();
           if (resp.isNotEmpty) {
             listValue.value = resp;
             bool found = false;
@@ -169,10 +170,13 @@ class FxPaymentTermLk extends HookConsumerWidget {
                 ),
                 value: selectedValue.value,
                 underline: const SizedBox.shrink(),
-                onChanged: (value) {
-                  if (value != null) selectedValue.value = value;
-                  if (onChanged != null && value != null) onChanged!(value);
-                },
+                onChanged: readOnly
+                    ? null
+                    : (value) {
+                        if (value != null) selectedValue.value = value;
+                        if (onChanged != null && value != null)
+                          onChanged!(value);
+                      },
                 items: listValue.value
                     .map<DropdownMenuItem<PaymentTermResponseModel>>(
                       (value) => DropdownMenuItem(

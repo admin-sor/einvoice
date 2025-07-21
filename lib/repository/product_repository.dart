@@ -25,17 +25,27 @@ class ProductRepository extends BaseRepository {
   /// Edits an existing product.
   Future<bool> edit({
     required String evProductID,
+    required String evProductCode,
     required String evProductDescription,
     required String evProductUnit,
     required String evProductPrice,
+    required String evProductTaxCategory,
+    required String evProductClassification,
+    required String evProductTaxPercent,
+    required String evProductTaxReason,
     required String token,
   }) async {
     const service = "product/edit";
     final param = {
       "evProductDescription": evProductDescription,
       "evProductID": evProductID,
+      "evProductCode": evProductCode,
       "evProductUnit": evProductUnit,
       "evProductPrice": evProductPrice,
+      "evProductTaxReason": evProductTaxReason,
+      "evProductTaxPercent": evProductTaxPercent,
+      "evProductClassification": evProductClassification,
+      "evProductTaxCategory": evProductTaxCategory,
     };
     await post(param: param, service: service, token: token);
     return true;

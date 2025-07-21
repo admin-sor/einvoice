@@ -15,6 +15,7 @@ final isWebMobile = kIsWeb &&
 
 class Constants {
   //homev3
+  static const Color colorPurple = Color(0xff9900ff);
   static const Color colorHomeV3GreenDark = Color(0xff008a8d);
   static const Color colorHomeV3TextGray = Color(0xff606060);
   static const Color colorHomeV3GreenDark30 = Color(0x33545454);
@@ -48,6 +49,7 @@ class Constants {
   static String host = "tkdev.sor.my";
   /* static const host = "anddemo.sor.com.my"; */
   static String baseUrl = "https://$host/einvoice_api/";
+  static String taxPortalUrl = "https://preprod.myinvois.hasil.gov.my/";
   static String clientName = "clientName";
   static String reportUrl = "https://$host/einvoice_report/";
 

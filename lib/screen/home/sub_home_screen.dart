@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sor_inventory/model/dynamic_screen_model.dart';
+import 'package:sor_inventory/screen/invoice_v2/invoice_id_provider.dart';
 
 import '../../app/app_route.dart';
 import '../../app/constants.dart';
@@ -176,6 +177,9 @@ class SubHomeScreen extends HookConsumerWidget {
                       var icon = x.screenImage!.replaceAll(".png", "_v3.png");
                       return InkWell(
                         onTap: () {
+                          if (x.screenRoute == "/invoiceRoute") {
+                            ref.read(invoiceIDProvider.notifier).state = "0";
+                          }
                           if (x.screenRoute == "/stockTakeRoute") {
                             bool isStockTakeInProgress = false;
                             if (stockTakeModel.value != null) {
