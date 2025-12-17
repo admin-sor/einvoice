@@ -7,6 +7,7 @@ import 'fx_green_dark_text.dart';
 
 class FxDateField extends HookWidget {
   final double? width;
+  final double? height;
   final DateTime dateValue;
   final void Function(DateTime)? onDateChange;
   final DateTime firstDate;
@@ -15,9 +16,12 @@ class FxDateField extends HookWidget {
   final String? labelText;
   final FocusNode? fcNode;
   final bool readOnly;
+  final bool isFixedTitle;
+  final EdgeInsets? contentPadding;
   const FxDateField({
     Key? key,
     this.width,
+    this.height,
     required this.dateValue,
     required this.firstDate,
     required this.lastDate,
@@ -25,6 +29,8 @@ class FxDateField extends HookWidget {
     this.labelText,
     this.hintText,
     this.fcNode,
+    this.isFixedTitle = false,
+    this.contentPadding,
     this.readOnly = false,
   }) : super(key: key);
 
@@ -50,12 +56,14 @@ class FxDateField extends HookWidget {
     }
     return ConstrainedBox(
       constraints: BoxConstraints.loose(
-        Size(maxWidth, 50),
+        Size(maxWidth, height ?? 50),
       ),
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 10.0),
+            padding: isFixedTitle
+                ? const EdgeInsets.only(top: 5.0)
+                : const EdgeInsets.only(top: 10.0),
             child: TextField(
               controller: ctrl,
               readOnly: true,
@@ -90,8 +98,8 @@ class FxDateField extends HookWidget {
                   ),
                 ),
                 contentPadding: const EdgeInsets.all(10),
-                labelText: labelText,
-                hintText: hintText,
+                // labelText: labelText,
+                //hintText: hintText,
                 labelStyle: const TextStyle(
                   fontSize: 16,
                   color: Constants.greenDark,
@@ -126,20 +134,38 @@ class FxDateField extends HookWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Container(
-              width: 100,
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 5.0),
-                child: FxGreenDarkText(
-                  title: labelText ?? "PO Date",
-                  fontSize: 12,
+          if (isFixedTitle)
+            Positioned(
+              left: 10,
+              top: -2,
+              child: Container(
+                  color: Constants.colorAppBarBg,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      labelText ?? "",
+                      style: TextStyle(
+                        color: Constants.greenDark,
+                        fontSize: 12,
+                      ),
+                    ),
+                  )),
+            ),
+          if (!isFixedTitle)
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Container(
+                width: 100,
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 5.0),
+                  child: FxGreenDarkText(
+                    title: labelText ?? "PO Date",
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

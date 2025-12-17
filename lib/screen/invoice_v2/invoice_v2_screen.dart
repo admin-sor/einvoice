@@ -63,7 +63,7 @@ class InvoiceV2Screen extends HookConsumerWidget {
     final isInEditMode = useState(!fromSummary);
     double screenWidth = MediaQuery.of(context).size.width;
     if (kIsWeb) {
-      screenWidth = Constants.webWidth;
+      screenWidth = Constants.webWidth - 20;
     }
 
     final nbf = NumberFormat("###,##0", "en_US");
@@ -82,10 +82,14 @@ class InvoiceV2Screen extends HookConsumerWidget {
     final errorMessageClient = useState<String>("");
     //invoice date
     final invoiceDate = useState<DateTime>(DateTime.now());
+    final fromDate = useState<DateTime>(DateTime.now());
+    final toDate = useState<DateTime>(DateTime.now());
     //invoice no
     final invoiceID = ref.watch(invoiceIDProvider);
     final ctrlInvoiceNo = useTextEditingController(
         text: fromSummary ? invoiceModel?.invoiceNo : "");
+    final ctrlInvoiceDate = useTextEditingController(
+        text: fromSummary ? invoiceModel?.invoiceDate : "");
     final errorMessageInvoiceV2 = useState("");
     //payment term
     final selectedPaymentTerm = useState<PaymentTermResponseModel?>(null);
@@ -155,7 +159,6 @@ class InvoiceV2Screen extends HookConsumerWidget {
       }
     });
     ref.listen(getInvoiceHeaderProvider, (prev, next) {
-      print(next);
       if (next is GetInvoiceHeaderStateLoading) {
         isLoadingDetail.value = true;
         errorMessageSave.value = "";
@@ -288,6 +291,9 @@ class InvoiceV2Screen extends HookConsumerWidget {
           lastLhdnStatusUpdated.value = sdf.format(DateTime.now());
         } else if (next.model.acceptedDocuments.isNotEmpty) {
           lastLhdnStatus.value = "Y";
+          ctrlInvoiceDate.text = next.model.invoiceDate;
+          ctrlInvoiceNo.text = next.model.invoiceNo;
+
           lastLhdnStatusUpdated.value = sdf.format(DateTime.now());
           Timer(const Duration(seconds: 5), () {
             ref
@@ -364,47 +370,49 @@ class InvoiceV2Screen extends HookConsumerWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: FxAcClient(
-                          initialValue: TextEditingValue(
-                              text: selectedClient.value?.evClientName ?? ""),
-                          contentPadding: const EdgeInsets.all(14),
-                          labelText: "Client",
-                          hintText: "Client",
-                          readOnly: !isInEditMode.value,
-                          value: selectedClient.value?.evClientName ?? "",
-                          onSelected: (model) {
-                            selectedClient.value = model;
-                            if (ctrlInvoiceNo.text != "") {
-                              showAddProduct.value = true;
-                            }
-                          },
-                          errorMessage: errorMessageClient.value,
-                        ),
+                      child: FxAcClient(
+                        initialValue: TextEditingValue(
+                            text: selectedClient.value?.evClientName ?? ""),
+                        contentPadding: const EdgeInsets.all(14),
+                        labelText: "Client",
+                        hintText: "Client",
+                        readOnly: !isInEditMode.value,
+                        value: selectedClient.value?.evClientName ?? "",
+                        onSelected: (model) {
+                          selectedClient.value = model;
+                          if (true || ctrlInvoiceNo.text != "") {
+                            showAddProduct.value = true;
+                          }
+                        },
+                        errorMessage: errorMessageClient.value,
                       ),
                     ),
                     horiSpace,
                     Expanded(
-                      child: FxDateField(
-                        hintText: "Invoice Date",
-                        labelText: "Invoice Date",
-                        dateValue: invoiceDate.value,
-                        readOnly: !isInEditMode.value,
-                        firstDate: DateTime.now().subtract(
-                          const Duration(
-                            days: 365 * 2,
-                          ),
-                        ),
-                        lastDate: DateTime.now().add(
-                          const Duration(
-                            days: 365 * 2,
-                          ),
-                        ),
-                        onDateChange: (dt) {
-                          invoiceDate.value = dt;
-                        },
-                      ),
+                      child: FxTextField(
+                          labelText: "Invoice Date",
+                          readOnly: true,
+                          enabled: false,
+                          ctrl: ctrlInvoiceDate),
+                      // FxDateField(
+                      //   hintText: "Invoice Date",
+                      //   labelText: "Invoice Date",
+                      //   dateValue: invoiceDate.value,
+                      //   readOnly: !isInEditMode.value,
+                      //   firstDate: DateTime.now().subtract(
+                      //     const Duration(
+                      //       days: 365 * 2,
+                      //     ),
+                      //   ),
+                      //   lastDate: DateTime.now().add(
+                      //     const Duration(
+                      //       days: 365 * 2,
+                      //     ),
+                      //   ),
+                      //   onDateChange: (dt) {
+                      //     invoiceDate.value = dt;
+                      //   },
+                      // ),
                     ),
                   ],
                 ),
@@ -423,13 +431,14 @@ class InvoiceV2Screen extends HookConsumerWidget {
                           ctrl: ctrlInvoiceNo,
                           hintText: "Invoice No.",
                           labelText: "Invoice No.",
-                          readOnly: !isInEditMode.value,
+                          readOnly: true, // !isInEditMode.value,
+                          enabled: false,
                           onChanged: (v) {
-                            if (selectedClient.value != null && v != "") {
-                              showAddProduct.value = true;
-                            } else {
-                              showAddProduct.value = false;
-                            }
+                            // if (selectedClient.value != null && v != "") {
+                            //   showAddProduct.value = true;
+                            // } else {
+                            //   showAddProduct.value = false;
+                            // }
                           },
                         ),
                       ),
@@ -512,14 +521,14 @@ class InvoiceV2Screen extends HookConsumerWidget {
                       if (isInEditMode.value)
                         Expanded(
                           child: FxButton(
-                            prefix: Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Image.asset(
-                                "images/add_icon.png",
-                                width: 18,
-                                height: 18,
-                              ),
-                            ),
+                            // prefix: Padding(
+                            //   padding: const EdgeInsets.only(right: 10.0),
+                            //   child: Image.asset(
+                            //     "images/add_icon.png",
+                            //     width: 18,
+                            //     height: 18,
+                            //   ),
+                            // ),
                             title: "Add Product",
                             color: Constants.orange,
                             onPress: addProductReady.value
@@ -547,16 +556,16 @@ class InvoiceV2Screen extends HookConsumerWidget {
                       if (!isInEditMode.value && lastLhdnStatus.value != "Y")
                         Expanded(
                           child: FxButton(
-                            prefix: Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Image.asset(
-                                "images/submission_icon.png",
-                                width: 18,
-                                height: 18,
-                              ),
-                            ),
+                            // prefix: Padding(
+                            //   padding: const EdgeInsets.only(right: 10.0),
+                            //   child: Image.asset(
+                            //     "images/submission_icon.png",
+                            //     width: 18,
+                            //     height: 18,
+                            //   ),
+                            // ),
                             isLoading: isLoadingSubmitLhdn.value,
-                            title: "Submit LHDN",
+                            title: "Submit to LHDN",
                             color: Constants.colorPurple,
                             onPress: () {
                               ref
@@ -582,14 +591,14 @@ class InvoiceV2Screen extends HookConsumerWidget {
                       if (!fromSummary && isInEditMode.value)
                         Expanded(
                           child: FxButton(
-                            prefix: Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Image.asset(
-                                "images/tick_icon.png",
-                                width: 18,
-                                height: 18,
-                              ),
-                            ),
+                            // prefix: Padding(
+                            //   padding: const EdgeInsets.only(right: 10.0),
+                            //   child: Image.asset(
+                            //     "images/tick_icon.png",
+                            //     width: 18,
+                            //     height: 18,
+                            //   ),
+                            // ),
                             title: "Done",
                             color: Constants.greenDark,
                             onPress: () {
@@ -665,59 +674,56 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                 mainAxisSize: MainAxisSize.max,
                                 children: [
                                   // selectedProduct.value == null
-                                  Expanded(
-                                    child: FxAutoCompletionProduct(
-                                      width: screenWidth,
-                                      ctrl: ctrlProduct,
-                                      fc: fcProduct,
-                                      errorMessage: errorMessageProduct.value,
-                                      invoiceID: invoiceID,
-                                      labelText: "Product Code/Description",
-                                      hintText: "Search",
-                                      value: selectedProduct
-                                              .value?.evProductCode ??
-                                          "",
-                                      onSelectedProduct: (model) {
-                                        FocusScope.of(context)
-                                            .requestFocus(FocusNode());
-                                        ctrlProductDesc.text =
-                                            model?.evProductDescription ?? "";
+                                  FxAutoCompletionProduct(
+                                    width: 310,
+                                    ctrl: ctrlProduct,
+                                    fc: fcProduct,
+                                    errorMessage: errorMessageProduct.value,
+                                    invoiceID: invoiceID,
+                                    labelText: "Product Code/Description",
+                                    hintText: "Search",
+                                    value:
+                                        selectedProduct.value?.evProductCode ??
+                                            "",
+                                    onSelectedProduct: (model) {
+                                      FocusScope.of(context)
+                                          .requestFocus(FocusNode());
+                                      ctrlProductDesc.text =
+                                          model?.evProductDescription ?? "";
 
-                                        if (model == null) {
-                                          ctrlUom.text = "";
-                                          selectedProduct.value = null;
-                                          ctrlTotalItem.text = "0";
-                                          ctrlPrice.text = "0.00";
-                                          ctrlTotalAmount.text = "0.00";
-                                        } else {
-                                          selectedProduct.value = model;
-                                          ctrlUom.text =
-                                              model.evProductUnit ?? "";
-                                          ctrlTotalItem.text = "1";
-                                          ctrlPrice.text = nbfDec.format(nbfDec
-                                              .parse(model.evProductPrice ??
-                                                  "0.00"));
+                                      if (model == null) {
+                                        ctrlUom.text = "";
+                                        selectedProduct.value = null;
+                                        ctrlTotalItem.text = "0";
+                                        ctrlPrice.text = "0.00";
+                                        ctrlTotalAmount.text = "0.00";
+                                      } else {
+                                        selectedProduct.value = model;
+                                        ctrlUom.text =
+                                            model.evProductUnit ?? "";
+                                        ctrlTotalItem.text = "1";
+                                        ctrlPrice.text = nbfDec.format(
+                                            nbfDec.parse(model.evProductPrice ??
+                                                "0.00"));
 
-                                          doCalcTotal(
-                                              model.evProductPrice ?? "0.00",
-                                              "1");
-                                          showTotalQtyAmount.value = true;
+                                        doCalcTotal(
+                                            model.evProductPrice ?? "0.00",
+                                            "1");
+                                        showTotalQtyAmount.value = true;
 
-                                          if (model.evProductPrice == null ||
-                                              model.evProductPrice == "0.00") {
-                                            errorMessagePrice.value =
-                                                "Price not set";
-                                            Timer(const Duration(seconds: 3),
-                                                () {
-                                              errorMessagePrice.value = "";
-                                            });
-                                          } else {
+                                        if (model.evProductPrice == null ||
+                                            model.evProductPrice == "0.00") {
+                                          errorMessagePrice.value =
+                                              "Price not set";
+                                          Timer(const Duration(seconds: 3), () {
                                             errorMessagePrice.value = "";
-                                          }
+                                          });
+                                        } else {
+                                          errorMessagePrice.value = "";
                                         }
-                                        // checkIsConfirmValid();
-                                      },
-                                    ),
+                                      }
+                                      // checkIsConfirmValid();
+                                    },
                                   ),
                                   if (selectedProduct.value != null) horiSpace,
                                   if (selectedProduct.value != null)
@@ -726,8 +732,8 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                         hintText: "Description",
                                         labelText: "Description",
                                         ctrl: ctrlProductDesc,
-                                        readOnly: true,
-                                        enabled: false,
+                                        readOnly: false,
+                                        enabled: true,
                                       ),
                                     ),
                                 ],
@@ -743,70 +749,129 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                         CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      FxTextField(
-                                        width: materialCodeWidth,
-                                        focusNode: fcTotalItem,
-                                        textAlign: TextAlign.end,
-                                        onChanged: (val) {
-                                          try {
-                                            num xval =
-                                                nbf.parse(ctrlTotalItem.text);
-                                            if (xval > 0.0) {
-                                              showTotalQtyAmount.value = true;
-                                            } else {
+                                      FxDateField(
+                                        width: 150,
+                                        height: 80,
+                                        contentPadding: EdgeInsets.zero,
+                                        hintText: "Date From",
+                                        labelText: "Date From",
+                                        dateValue: fromDate.value,
+                                        isFixedTitle: true,
+                                        firstDate: DateTime.now().subtract(
+                                          const Duration(
+                                            days: 365 * 2,
+                                          ),
+                                        ),
+                                        lastDate: DateTime.now().add(
+                                          const Duration(
+                                            days: 365 * 2,
+                                          ),
+                                        ),
+                                        onDateChange: (dt) {
+                                          fromDate.value = dt;
+                                        },
+                                      ),
+                                      horiSpace,
+                                      FxDateField(
+                                        width: 150,
+                                        height: 80,
+                                        contentPadding: EdgeInsets.zero,
+                                        hintText: "",
+                                        labelText: "Date To",
+                                        dateValue: toDate.value,
+                                        isFixedTitle: true,
+                                        firstDate: DateTime.now().subtract(
+                                          const Duration(
+                                            days: 365 * 2,
+                                          ),
+                                        ),
+                                        lastDate: DateTime.now().add(
+                                          const Duration(
+                                            days: 365 * 2,
+                                          ),
+                                        ),
+                                        onDateChange: (dt) {
+                                          toDate.value = dt;
+                                        },
+                                      ),
+                                      horiSpace,
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 5),
+                                        child: FxTextField(
+                                          width: materialCodeWidth,
+                                          focusNode: fcTotalItem,
+                                          textAlign: TextAlign.end,
+                                          onChanged: (val) {
+                                            try {
+                                              num xval =
+                                                  nbf.parse(ctrlTotalItem.text);
+                                              if (xval > 0.0) {
+                                                showTotalQtyAmount.value = true;
+                                              } else {
+                                                showTotalQtyAmount.value =
+                                                    false;
+                                              }
+                                            } catch (e) {
                                               showTotalQtyAmount.value = false;
                                             }
-                                          } catch (e) {
-                                            showTotalQtyAmount.value = false;
-                                          }
-                                          doCalcTotal(ctrlPrice.text, val);
-                                        },
-                                        errorMessage: errorMessageQty.value,
-                                        showErrorMessage: true,
-                                        ctrl: ctrlTotalItem,
-                                        hintText: "Total Item",
-                                        labelText: "Total Item",
-                                        textInputType: TextInputType.number,
+                                            doCalcTotal(ctrlPrice.text, val);
+                                          },
+                                          errorMessage: errorMessageQty.value,
+                                          showErrorMessage: true,
+                                          ctrl: ctrlTotalItem,
+                                          hintText: "Total Item",
+                                          labelText: "Total Item",
+                                          textInputType: TextInputType.number,
+                                        ),
                                       ),
                                       horiSpace,
-                                      FxTextField(
-                                        focusNode: fcPrice,
-                                        textAlign: TextAlign.end,
-                                        width: materialCodeWidth + 20,
-                                        ctrl: ctrlPrice,
-                                        enabled: true,
-                                        hintText: "Unit Price",
-                                        labelText: "Unit Price",
-                                        onChanged: (val) {
-                                          doCalcTotal(val, ctrlTotalItem.text);
-                                        },
-                                        readOnly: false,
-                                        errorMessage: errorMessagePrice.value,
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 5.0),
+                                        child: FxTextField(
+                                          focusNode: fcPrice,
+                                          textAlign: TextAlign.end,
+                                          width: materialCodeWidth + 20,
+                                          ctrl: ctrlPrice,
+                                          enabled: true,
+                                          hintText: "Unit Price",
+                                          labelText: "Unit Price",
+                                          onChanged: (val) {
+                                            doCalcTotal(
+                                                val, ctrlTotalItem.text);
+                                          },
+                                          readOnly: false,
+                                          errorMessage: errorMessagePrice.value,
+                                        ),
                                       ),
-                                      horiSpace,
-                                      FxTextField(
-                                        focusNode: fcUom,
-                                        textAlign: TextAlign.end,
-                                        width: materialCodeWidth,
-                                        ctrl: ctrlUom,
-                                        enabled: true,
-                                        hintText: "UOM",
-                                        labelText: "UOM",
-                                        readOnly: false,
-                                      ),
+                                      // horiSpace,
+                                      // FxTextField(
+                                      //   focusNode: fcUom,
+                                      //   textAlign: TextAlign.end,
+                                      //   width: materialCodeWidth,
+                                      //   ctrl: ctrlUom,
+                                      //   enabled: true,
+                                      //   hintText: "UOM",
+                                      //   labelText: "UOM",
+                                      //   readOnly: false,
+                                      // ),
                                       horiSpace,
                                       (!showTotalQtyAmount.value)
                                           ? Expanded(
                                               child: SizedBox(width: width25))
                                           : Expanded(
-                                              child: FxTextField(
-                                                width: width25,
-                                                textAlign: TextAlign.end,
-                                                ctrl: ctrlTotalAmount,
-                                                readOnly: true,
-                                                enabled: false,
-                                                hintText: "Total Amount(RM)",
-                                                labelText: "Total Amount(RM)",
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 5.0),
+                                                child: FxTextField(
+                                                  width: width25,
+                                                  textAlign: TextAlign.end,
+                                                  ctrl: ctrlTotalAmount,
+                                                  readOnly: true,
+                                                  enabled: false,
+                                                  hintText: "Total Amount(RM)",
+                                                  labelText: "Total Amount(RM)",
+                                                ),
                                               ),
                                             ),
                                     ],
@@ -837,6 +902,10 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                                       .value?.paymentTermID ??
                                                   "0",
                                               invoiceDate: invoiceDate.value,
+                                              dateFrom: fromDate.value,
+                                              dateTo: toDate.value,
+                                              productDescription:
+                                                  ctrlProductDesc.text,
                                               productID: selectedProduct
                                                       .value?.evProductID ??
                                                   "0",
@@ -894,18 +963,18 @@ class InvoiceV2Screen extends HookConsumerWidget {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: FxInvoiceProductInfo(
-                          model: model,
-                          isFirst: idx == 0,
-                          onDelete: lastLhdnStatus.value == "N"
-                              ? () {
-                                  ref
-                                      .read(deleteDetailProvider.notifier)
-                                      .delete(
-                                        invoiceDetailID: model.invoiceDetailID,
-                                        invoiceID: invoiceID,
-                                      );
-                                }
-                              : null),
+                        model: model,
+                        isFirst: idx == 0,
+                        onDelete: lastLhdnStatus.value == "N" &&
+                                isInEditMode.value
+                            ? () {
+                                ref.read(deleteDetailProvider.notifier).delete(
+                                      invoiceDetailID: model.invoiceDetailID,
+                                      invoiceID: invoiceID,
+                                    );
+                              }
+                            : null,
+                      ),
                     );
                   }),
               ],

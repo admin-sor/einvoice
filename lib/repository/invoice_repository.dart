@@ -43,7 +43,7 @@ class InvoiceRepository extends BaseRepository {
       service: "ev_invoice/submit/$invoiceID",
       token: token,
     );
-    return LhdnSubmitResponseModel.fromJson(resp["data"]);
+    return LhdnSubmitResponseModel.fromJson(resp);
   }
 
   Future<String> addDetail({
@@ -52,9 +52,12 @@ class InvoiceRepository extends BaseRepository {
     required String invoiceNo,
     required String invoiceTerm,
     required String invoiceDate,
+    required String dateFrom,
+    required String dateTo,
     required String clientID,
     required String paymentTermID,
     required String productID,
+    required String productDescription,
     required String taxPercent,
     required String qty,
     required String price,
@@ -67,8 +70,11 @@ class InvoiceRepository extends BaseRepository {
       "clientID": clientID,
       "paymentTermID": paymentTermID,
       "invoiceDetailUnit": uom,
+      "invoiceDetailDateFrom": dateFrom,
+      "invoiceDetailDateTo": dateTo,
       "invoiceDetailInvoiceID": invoiceID,
       "invoiceDetailEvProductID": productID,
+      "invoiceDetailEvDescription": productDescription,
       "invoiceDetailEvProductTaxPercent": taxPercent,
       "invoiceDetailQty": qty,
       "invoiceDetailPrice": price,

@@ -6,6 +6,7 @@ class FxButton extends StatelessWidget {
   final VoidCallback? onPress;
   final String title;
   final bool isLoading;
+  final EdgeInsets? insidePadding;
   final Widget? prefix;
   final double? height;
 
@@ -17,6 +18,7 @@ class FxButton extends StatelessWidget {
     this.isLoading = false,
     this.prefix,
     this.height = 40.0,
+    this.insidePadding,
     Key? key,
   }) : super(key: key);
 
@@ -55,7 +57,7 @@ class FxButton extends StatelessWidget {
             ),
             onPressed: onPress,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: insidePadding ?? const EdgeInsets.all(8.0),
               child: Stack(
                 alignment: Alignment.center,
                 children: [

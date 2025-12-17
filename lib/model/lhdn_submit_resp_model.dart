@@ -10,8 +10,12 @@
   "rejectedDocuments": []
 }
 */
+import 'package:flutter/cupertino.dart';
+
 class LhdnSubmitResponseModel {
   final String submissionUid;
+  final String invoiceNo;
+  final String invoiceDate;
   final List<AcceptedDocument> acceptedDocuments;
   final List<RejectedDocument> rejectedDocuments;
 
@@ -19,15 +23,20 @@ class LhdnSubmitResponseModel {
     required this.submissionUid,
     required this.acceptedDocuments,
     required this.rejectedDocuments,
+    required this.invoiceNo,
+    required this.invoiceDate,
   });
 
   factory LhdnSubmitResponseModel.fromJson(Map<String, dynamic> json) {
+    debugPrint(json.toString());
     return LhdnSubmitResponseModel(
+      invoiceNo: json["invoiceNo"],
+      invoiceDate: json["invoiceDate"],
       submissionUid: json['submissionUid'] as String,
-      acceptedDocuments: (json['acceptedDocuments'] as List<dynamic>)
+      acceptedDocuments: (json["data"]['acceptedDocuments'] as List<dynamic>)
           .map((e) => AcceptedDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
-      rejectedDocuments: (json['rejectedDocuments'] as List<dynamic>)
+      rejectedDocuments: (json["data"]['rejectedDocuments'] as List<dynamic>)
           .map((e) => RejectedDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -36,6 +45,8 @@ class LhdnSubmitResponseModel {
   Map<String, dynamic> toJson() {
     return {
       'submissionUid': submissionUid,
+      'invoiceDate': invoiceDate,
+      'invoiceNo': invoiceNo,
       'acceptedDocuments': acceptedDocuments.map((e) => e.toJson()).toList(),
       'rejectedDocuments': rejectedDocuments.map((e) => e.toJson()).toList(),
     };

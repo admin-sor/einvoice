@@ -23,9 +23,10 @@ class InvoiceStatusModel {
 
 final List<InvoiceStatusModel> listInvoiceStatus = [
   InvoiceStatusModel(code: "A", name: "All"),
-  InvoiceStatusModel(code: "N", name: "Not Submitted"),
+  InvoiceStatusModel(code: "N", name: "Ready To Submit"),
+  InvoiceStatusModel(code: "P", name: "Pending LHDN"),
   InvoiceStatusModel(code: "S", name: "Submitted"),
-  InvoiceStatusModel(code: "E", name: "Error"),
+  InvoiceStatusModel(code: "E", name: "Failed"),
 ];
 
 class FxInvoiceStatusLk extends HookConsumerWidget {
@@ -94,44 +95,73 @@ class FxInvoiceStatusLk extends HookConsumerWidget {
             child: isReady.value
                 ? ButtonTheme(
                     alignedDropdown: true,
-                    child: DropdownButton<InvoiceStatusModel>(
-                      icon: Image.asset(
-                        "images/icon_triangle_down.png",
-                        height: 36,
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
                       ),
-                      onTap: null,
-                      hint: Text(
-                        hintText ?? "",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
+                      child: DropdownButton<InvoiceStatusModel>(
+                        dropdownColor: Colors.white,
+                        icon: Image.asset(
+                          "images/icon_triangle_down.png",
+                          height: 36,
                         ),
-                      ),
-                      value: selectedValue.value ?? listInvoiceStatus[0],
-                      underline: const SizedBox.shrink(),
-                      isExpanded: true,
-                      onChanged: readOnly
-                          ? null
-                          : (value) {
-                              if (value != null) selectedValue.value = value;
-                              if (onChanged != null && value != null)
-                                onChanged!(value);
-                            },
-                      items: listValue.value
-                          .map<DropdownMenuItem<InvoiceStatusModel>>(
-                            (value) => DropdownMenuItem(
-                              value: value,
-                              child: Text(
-                                value.name,
-                                textAlign: TextAlign.left,
-                                style: const TextStyle(
-                                  /* color: Constants.greenDark, */
-                                  fontSize: 16,
+                        onTap: null,
+                        hint: Text(
+                          hintText ?? "",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        value: selectedValue.value ?? listInvoiceStatus[0],
+                        underline: const SizedBox.shrink(),
+                        isExpanded: true,
+                        selectedItemBuilder: (context) => listValue.value
+                            .map(
+                              (value) => Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  value.name,
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
-                            ),
-                          )
-                          .toList(),
+                            )
+                            .toList(),
+                        onChanged: readOnly
+                            ? null
+                            : (value) {
+                                if (value != null) selectedValue.value = value;
+                                if (onChanged != null && value != null)
+                                  onChanged!(value);
+                              },
+                        items: listValue.value
+                            .map<DropdownMenuItem<InvoiceStatusModel>>(
+                              (value) => DropdownMenuItem(
+                                value: value,
+                                child: Container(
+                                  width: double.infinity,
+                                  color: Colors.white,
+                                  alignment: Alignment.centerLeft,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  child: Text(
+                                    value.name,
+                                    textAlign: TextAlign.left,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
                   )
                 : Padding(

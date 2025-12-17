@@ -1,0 +1,89 @@
+{
+  "id": "251215001",
+  "issue_date": "2025-12-15",
+  "issue_time": "03:41:16Z",
+  "invoice_type_code": "01",
+  "currency": "MYR",
+  "skip_invoice_period": {
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-15",
+    "description": "One Time"
+  },
+  "customer": {
+    "ids": [
+      {
+        "type": "TIN",
+        "value": "C2899273030"
+      },
+      {
+        "type": "BRN",
+        "value": "198301011977"
+      }
+    ],
+    "address": {
+      "city": "JOHOR BAHRU",
+      "postal": "81100",
+      "state": "01",
+      "lines": ["No. 79, Jalan Teratai 7", "Taman Johor Jaya"],
+      "country": "MYS"
+    },
+    "name": "KOMASI ENGINEERING SDN. BHD.",
+    "phone": "+6073530028",
+    "email": "enquiry@komasi.com"
+  },
+  "supplier": {
+    "industry": "58201",
+    "industry_name": "Software publishing Business and other applications",
+    "ids": [
+      {
+        "type": "TIN",
+        "value": "C20556943090"
+      },
+      {
+        "type": "BRN",
+        "value": "200701016921"
+      }
+    ],
+    "address": {
+      "city": "JOHOR BAHRU",
+      "postal": "81750",
+      "state": "01",
+      "lines": ["49F-01, JALAN PERMAS 4", "BANDAR BARU PERMAS JAYA"],
+      "country": "MYS"
+    },
+    "name": "SOR SYSTEM SDN BHD",
+    "phone": "0197020180",
+    "email": "support@sor.my"
+  },
+  "tax_total": {
+    "amount": "96.00",
+    "taxable": "1200.00",
+    "category_id": "02"
+  },
+  "monetary": {
+    "exclusive": "1200.00",
+    "inclusive": "1296.00",
+    "payable": "1296.00"
+  },
+  "lines": [
+    {
+      "id": "238",
+      "quantity": "1.00",
+      "unit": "EA",
+      "extension": "1200.00",
+      "tax": {
+        "amount": "96.00",
+        "taxable": "1200.00",
+        "sub_amount": "96.00",
+        "category": "02",
+        "percent": "8.00",
+        "reason": "Service Tax X"
+      },
+      "description": "New Laptop Model X Fx01",
+      "country": "MYS",
+      "classification": "022",
+      "price": "1200.00",
+      "item_extension": "1200.00"
+    }
+  ]
+}

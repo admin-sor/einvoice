@@ -1,20 +1,20 @@
 class MobileConfigModel {
-  late String mobileConfigAutoPo;
+  late String mobileConfigAutoInvoice;
   late String mobileconfigID;
 
   MobileConfigModel({
-    required this.mobileConfigAutoPo,
+    required this.mobileConfigAutoInvoice,
     required this.mobileconfigID,
   });
 
   MobileConfigModel.fromJson(Map<String, dynamic> json) {
-    mobileConfigAutoPo = json['mobileConfigAutoPo'];
+    mobileConfigAutoInvoice = json['mobileConfigAutoInvoice'];
     mobileconfigID = json['mobileconfigID'].toString();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['mobileConfigAutoPo'] = mobileConfigAutoPo;
+    data['mobileConfigAutoInvoice'] = mobileConfigAutoInvoice;
     data['mobileconfigID'] = mobileconfigID;
     return data;
   }

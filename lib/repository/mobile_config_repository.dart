@@ -25,7 +25,7 @@ class MobileConfigRepository extends BaseRepository {
       token: token,
       param: {
         "mobileConfigID": model.mobileconfigID,
-        "mobileConfigAutoPo": model.mobileConfigAutoPo,
+        "mobileConfigAutoInvoice": model.mobileConfigAutoInvoice,
       },
       service: "setting/update_config",
     );

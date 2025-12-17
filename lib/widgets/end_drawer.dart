@@ -115,8 +115,8 @@ class EndDrawer extends HookConsumerWidget {
                 const SizedBox(width: 40),
                 Text(
                   errorMessage.value == ""
-                      ? "Auto PO Number"
-                      : "Auto PO Err ${errorMessage.value}",
+                      ? "Auto Invoice Number"
+                      : "Auto Invoice Err ${errorMessage.value}",
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14,
@@ -130,8 +130,8 @@ class EndDrawer extends HookConsumerWidget {
                   onTap: () {
                     if (mobileConfig.value == null) return;
                     final MobileConfigModel model = MobileConfigModel(
-                      mobileConfigAutoPo:
-                          mobileConfig.value!.mobileConfigAutoPo == "N"
+                      mobileConfigAutoInvoice:
+                          mobileConfig.value!.mobileConfigAutoInvoice == "N"
                               ? "Y"
                               : "N",
                       mobileconfigID: mobileConfig.value!.mobileconfigID,
@@ -150,7 +150,7 @@ class EndDrawer extends HookConsumerWidget {
                           ),
                         )
                       : Image.asset(
-                          mobileConfig.value?.mobileConfigAutoPo == "Y"
+                          mobileConfig.value?.mobileConfigAutoInvoice == "Y"
                               ? "./images/icon_on.png"
                               : "./images/icon_off.png",
                           width: 32,

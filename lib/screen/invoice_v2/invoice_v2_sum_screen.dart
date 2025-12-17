@@ -9,6 +9,7 @@ import 'package:sor_inventory/model/invoice_v2_model.dart';
 import 'package:sor_inventory/screen/invoice_v2/search_invoice_v2_provider.dart';
 import 'package:sor_inventory/screen/invoice_v2/set_client_provider.dart';
 import 'package:sor_inventory/widgets/fx_ac_client.dart';
+import 'package:sor_inventory/widgets/fx_button.dart';
 import 'package:sor_inventory/widgets/fx_date_field.dart';
 import 'package:sor_inventory/widgets/fx_gray_dark_text.dart';
 
@@ -21,6 +22,7 @@ import '../../widgets/fx_invoice_status_lk.dart';
 import '../login/login_provider.dart';
 import 'get_detail_provider.dart';
 import 'invoice_id_provider.dart';
+import 'submit_lhdn_provider.dart';
 
 class InvoiceSummaryScreen extends HookConsumerWidget {
   const InvoiceSummaryScreen({Key? key}) : super(key: key);
@@ -36,6 +38,7 @@ class InvoiceSummaryScreen extends HookConsumerWidget {
     final selectedInvoice = useState<InvoiceV2Model?>(null);
     final isLoading = useState(false);
     final errorMessage = useState("");
+    final submittingInvoiceId = useState<String?>(null);
 
     final listInvoice = useState<List<InvoiceV2Model>>(List.empty());
     final startDate =
@@ -130,6 +133,33 @@ class InvoiceSummaryScreen extends HookConsumerWidget {
             .read(getDetailProvider.notifier)
             .get(invoiceID: selectedInvoice.value?.invoiceID ?? "0");
       }
+    });
+    ref.listen(submitLhdnProvider, (prev, next) {
+      if (next is SubmitLHDNStateLoading) {
+        return;
+      }
+      if (next is SubmitLHDNStateError) {
+        errorMessage.value = next.message;
+        Timer(const Duration(seconds: 3), () {
+          if (errorMessage.value == next.message) {
+            errorMessage.value = "";
+          }
+        });
+        ref.read(searchInvoiceV2Provider.notifier).search(
+              startDate: startDate.value.toString(),
+              endDate: endDate.value.toString(),
+              client: selectedClient.value?.evClientName ?? "",
+              status: selectedStatus.value,
+            );
+      } else if (next is SubmitLHDNStateDone) {
+        ref.read(searchInvoiceV2Provider.notifier).search(
+              startDate: startDate.value.toString(),
+              endDate: endDate.value.toString(),
+              client: selectedClient.value?.evClientName ?? "",
+              status: selectedStatus.value,
+            );
+      }
+      submittingInvoiceId.value = null;
     });
     return Scaffold(
       appBar: AppBar(
@@ -238,8 +268,8 @@ class InvoiceSummaryScreen extends HookConsumerWidget {
                       labelText: "Start Date",
                       hintText: "Start Date",
                       dateValue: startDate.value,
-                      firstDate:
-                          DateTime.now().subtract(const Duration(days: 31)),
+                      firstDate: DateTime.now()
+                          .subtract(const Duration(days: 31 * 12)),
                       lastDate: DateTime.now(),
                       onDateChange: (val) {
                         startDate.value = val;
@@ -277,45 +307,69 @@ class InvoiceSummaryScreen extends HookConsumerWidget {
               const SizedBox(
                 height: 10,
               ),
-              const _InvoiceHeader(),
-              const Divider(color: Constants.greenDark, thickness: 1),
               Expanded(
-                child: Stack(
-                  children: [
-                    ListView.builder(
-                      itemCount: listInvoice.value.length,
-                      itemBuilder: (context, idx) {
-                        final model = listInvoice.value[idx];
-                        return _InvoiceDisplay(
-                            model: model,
-                            isOdd: idx == 0,
-                            onTap: () {
-                              selectedInvoice.value = model;
-                              ref
-                                  .read(getClientProvider.notifier)
-                                  .get(clientID: model.invoiceEvClientID);
-                            });
-                      },
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: 1000,
+                    child: Column(
+                      children: [
+                        _InvoiceHeader(),
+                        const Divider(color: Constants.greenDark, thickness: 1),
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              ListView.builder(
+                                itemCount: listInvoice.value.length,
+                                itemBuilder: (context, idx) {
+                                  final model = listInvoice.value[idx];
+                                  return _InvoiceDisplay(
+                                      model: model,
+                                      isOdd: idx == 0,
+                                      submittingInvoiceId:
+                                          submittingInvoiceId.value,
+                                      onSubmit: (invoice) {
+                                        submittingInvoiceId.value =
+                                            invoice.invoiceID;
+                                        ref
+                                            .read(submitLhdnProvider.notifier)
+                                            .submit(
+                                                invoiceID: invoice.invoiceID);
+                                      },
+                                      onTap: () {
+                                        selectedInvoice.value = model;
+                                        ref
+                                            .read(getClientProvider.notifier)
+                                            .get(
+                                                clientID:
+                                                    model.invoiceEvClientID);
+                                      });
+                                },
+                              ),
+                              if (isLoading.value)
+                                const SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              if (errorMessage.value != "")
+                                Text(
+                                  "Error ${errorMessage.value}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Constants.red,
+                                  ),
+                                )
+                            ],
+                          ),
+                        )
+                      ],
                     ),
-                    if (isLoading.value)
-                      const SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
-                      ),
-                    if (errorMessage.value != "")
-                      Text(
-                        "Error ${errorMessage.value}",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Constants.red,
-                        ),
-                      )
-                  ],
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -334,11 +388,14 @@ class _InvoiceHeader extends StatelessWidget {
     return const Row(children: [
       SizedBox(width: 80, child: FxGreenDarkText(title: "Date")),
       SizedBox(width: 10),
-      SizedBox(width: 140, child: FxGreenDarkText(title: "Invoice No.")),
+      SizedBox(
+          width: 90, child: FxGreenDarkText(title: "Invoice No.")), // from 140
       SizedBox(width: 10),
-      Expanded(child: FxGreenDarkText(title: "Client")),
+      SizedBox(width: 200, child: FxGreenDarkText(title: "Client")),
       SizedBox(width: 10),
-      SizedBox(width: 140, child: FxGreenDarkText(title: "Status")),
+      SizedBox(width: 190, child: FxGreenDarkText(title: "Status")),
+      SizedBox(width: 10),
+      SizedBox(width: 180, child: FxGreenDarkText(title: "Action")),
     ]);
   }
 }
@@ -349,16 +406,20 @@ class _InvoiceDisplay extends StatelessWidget {
     required this.model,
     required this.isOdd,
     this.onTap,
+    this.onSubmit,
+    this.submittingInvoiceId,
   }) : super(key: key);
 
   final InvoiceV2Model model;
   final bool isOdd;
   final void Function()? onTap;
+  final void Function(InvoiceV2Model model)? onSubmit;
+  final String? submittingInvoiceId;
 
   @override
   Widget build(BuildContext context) {
     final sdf = DateFormat("yyyy-MM-dd");
-    final sdfMan = DateFormat("dd/MM/yy");
+    final sdfMan = DateFormat("dd MMM yyyy");
     String fdate = model.invoiceDate;
     try {
       fdate = DateFormat("dd/MM/yy").format(sdf.parse(model.invoiceDate));
@@ -366,7 +427,7 @@ class _InvoiceDisplay extends StatelessWidget {
 
     return Container(
       // ignore: deprecated_member_use
-      color: isOdd ? null : Constants.greenLight.withOpacity(0.2),
+      // color: isOdd ? null : Constants.greenLight.withOpacity(0.2),
       child: InkWell(
         onTap: () {
           if (onTap != null) onTap!();
@@ -380,35 +441,73 @@ class _InvoiceDisplay extends StatelessWidget {
               SizedBox(width: 80, child: FxGrayDarkText(title: fdate)),
               const SizedBox(width: 10),
               SizedBox(
-                  width: 140, child: FxGrayDarkText(title: model.invoiceNo)),
+                  width: 90, child: FxGrayDarkText(title: model.invoiceNo)),
               const SizedBox(width: 10),
-              Expanded(
+              SizedBox(
+                width: 200,
                 child: FxGrayDarkText(title: model.evClientName),
               ),
               if (model.invoiceLHDNStatus == "N")
                 const SizedBox(
-                  width: 140,
+                  width: 190,
                   child: FxGrayDarkText(
-                    title: "Not submitted",
-                    color: Constants.red,
+                    title: "Ready to Submit",
                   ),
                 ),
               if (model.invoiceLHDNStatus == "E")
                 const SizedBox(
-                  width: 140,
+                  width: 190,
                   child: FxGrayDarkText(
-                    title: "Error submission",
-                  ),
-                ),
-              if (model.invoiceLHDNStatus == "Y")
-                SizedBox(
-                  width: 140,
-                  child: FxGrayDarkText(
-                    title:
-                        "Submitted at ${sdfMan.format(sdf.parse(model.invoiceLHDNLastUpdated))}",
+                    title: "Failed",
                     color: Constants.red,
                   ),
                 ),
+              if (model.invoiceLHDNStatus == "Y" && model.validationDate == "")
+                SizedBox(
+                  width: 190,
+                  child: FxGrayDarkText(
+                    title: "Pending LHDN",
+                  ),
+                ),
+              if (model.invoiceLHDNStatus == "Y" && model.validationDate != "")
+                SizedBox(
+                  width: 190,
+                  child: FxGrayDarkText(
+                    title:
+                        "Submitted ${sdfMan.format(sdf.parse(model.validationDate))}",
+                  ),
+                ),
+              SizedBox(
+                width: 10,
+              ),
+              if (model.invoiceLHDNStatus == "N")
+                FxButton(
+                  onPress: submittingInvoiceId == null && onSubmit != null
+                      ? () => onSubmit!(model)
+                      : null,
+                  isLoading: submittingInvoiceId == model.invoiceID,
+                  maxWidth: 190,
+                  insidePadding:
+                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+                  title: "Submit to LHDN",
+                  color: Colors.purple,
+                ),
+              if (model.invoiceLHDNStatus == "E")
+                FxButton(
+                  onPress: submittingInvoiceId == null && onSubmit != null
+                      ? () => onSubmit!(model)
+                      : null,
+                  isLoading: submittingInvoiceId == model.invoiceID,
+                  maxWidth: 190,
+                  insidePadding:
+                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+                  title: "Resubmit to LHDN",
+                  color: Colors.purple,
+                ),
+              if (model.invoiceLHDNStatus != "N")
+                SizedBox(
+                  width: 190,
+                )
             ],
           ),
         ),

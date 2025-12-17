@@ -6,6 +6,8 @@ import 'package:sor_inventory/screen/invoice_screen/invoice_screen.dart';
 import 'package:sor_inventory/screen/invoice_v2/invoice_v2_screen.dart';
 import 'package:sor_inventory/screen/invoice_v2/invoice_v2_sum_screen.dart';
 import 'package:sor_inventory/screen/product/product_edit_screen.dart';
+import 'package:sor_inventory/screen/self_bill_screen/self_bill_screen.dart';
+import 'package:sor_inventory/screen/self_bill_screen/self_bill_sum_screen.dart';
 
 import '../model/client_model.dart';
 import '../model/invoice_model.dart';
@@ -34,6 +36,8 @@ const invoiceSumRoute = "/invoiceSumRoute";
 
 const invoiceEvRoute = "/invoiceV2Route";
 const invoiceEvEditRoute = "/invoiceV2EditRoute";
+const selfBillRoute = "/selfBillRoute";
+const selfBillSumRoute = "/selfBillSumRoutexx";
 
 class AppRoute {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -47,11 +51,36 @@ class AppRoute {
     }
 
     //InvoiceSumScreen
-    // if (settings.name == invoiceSumRoute) {
+    if (settings.name == invoiceSumRoute) {
+      return MaterialPageRoute(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: InvoiceSummaryScreen(),
+        ),
+      );
+    }
+    if (settings.name == selfBillRoute) {
+      final args = settings.arguments as Map<String, dynamic>?;
+      final fromSummary = (args?['fromSummary'] ?? false) as bool;
+      final invoiceModel = args?['invoiceModel'] as InvoiceModel?;
+      final detail = args?['detail'] as List<InvoiceDetailModel>?;
+
+      return MaterialPageRoute(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: SelfBillScreen(
+            fromSummary: fromSummary,
+            invoiceModel: invoiceModel,
+            detail: detail,
+          ),
+        ),
+      );
+    }
+    // if (settings.name == selfBillSumRoute) {
     //   return MaterialPageRoute(
     //     builder: (context) => MediaQuery(
     //       data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-    //       child: InvoiceSummaryScreen(),
+    //       child: const SelfBillSummaryScreen(),
     //     ),
     //   );
     // }

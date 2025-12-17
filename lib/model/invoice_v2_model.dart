@@ -103,7 +103,7 @@ class InvoiceDetailModel {
       invoiceDetailPrice: json['invoiceDetailPrice'] ?? '',
       invoiceDetailUnit: json['invoiceDetailUnit'] ?? '',
       invoiceDetailIsActive: json['invoiceDetailIsActive'] ?? '',
-      evProductDescription: json['evProductDescription'] ?? '',
+      evProductDescription: json['invoiceDetailEvDescription'] ?? '',
     );
   }
 
