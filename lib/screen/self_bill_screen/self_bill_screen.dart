@@ -106,6 +106,7 @@ class SelfBillScreen extends HookConsumerWidget {
         );
       }).toList();
     }
+
     final listProduct = useState<List<_SelfBillProduct>>(
       fromSummary ? mapDetailToProduct(detail) : List.empty(),
     );
@@ -164,6 +165,7 @@ class SelfBillScreen extends HookConsumerWidget {
             nbfDec.format(nbfDec.parse(price) * nbf.parse(qty));
       } catch (_) {}
     }
+
     bool isDetailValid({bool withMessage = false}) {
       bool result = true;
       if (ctrlUom.text.trim().isEmpty) {
@@ -189,6 +191,7 @@ class SelfBillScreen extends HookConsumerWidget {
       }
       return result;
     }
+
     ref.listen(selfBillAddDetailProvider, (prev, next) {
       if (next is SelfBillAddDetailStateLoading) {
         isLoadingSave.value = true;
@@ -241,14 +244,21 @@ class SelfBillScreen extends HookConsumerWidget {
                 .validate(invoiceID: selfBillID);
           });
         }
+        if (next.model.getError() != "" && errorMessageSave.value == "") {
+          errorMessageSave.value = next.model.getError();
+          Timer(const Duration(seconds: 3), () {
+            if (errorMessageSave.value == next.model.getError()) {
+              errorMessageSave.value = "";
+            }
+          });
+        }
       }
     });
 
     String submittedDate = "";
     try {
       if (lastLhdnStatusUpdated.value?.isNotEmpty ?? false) {
-        submittedDate = sdfMan
-            .format(sdf.parse(lastLhdnStatusUpdated.value ?? ""));
+        submittedDate = sdfMan.format(sdf.parse(validationDate.value ?? ""));
       }
     } catch (_) {}
 
@@ -403,15 +413,13 @@ class SelfBillScreen extends HookConsumerWidget {
                               Expanded(
                                   child: Padding(
                                 padding: const EdgeInsets.only(left: 10.0),
-                                child: Text(
-                                    "LHDN Submission on " + submittedDate),
+                                child: Text("Pending LHDN"),
                               )),
                             if (validationDate.value != "")
                               Expanded(
                                   child: Padding(
                                 padding: const EdgeInsets.only(left: 10.0),
-                                child: Text("LHDN Validation on " +
-                                    validationDate.value),
+                                child: Text("Submittied " + submittedDate),
                               )),
                             if (!isInEditMode.value &&
                                 lastLhdnStatus.value != "Y")
@@ -460,7 +468,7 @@ class SelfBillScreen extends HookConsumerWidget {
                                     final snow =
                                         "&t=${DateTime.now().toIso8601String()}";
                                     final preUrl =
-                                        "https://${Constants.host}/reports/einvoice.php?id=$selfBillID";
+                                        "https://${Constants.host}/reports/einvoice_sb.php?id=$selfBillID";
                                     final url = "$preUrl$snow";
                                     launchUrlString(url);
                                   },
@@ -468,20 +476,21 @@ class SelfBillScreen extends HookConsumerWidget {
                               ),
                           ],
                         ),
-                      if (errorMessageSave.value.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              errorMessageSave.value,
-                              style: const TextStyle(
-                                color: Constants.red,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
+                      // if (errorMessageSave.value.isNotEmpty)
+                      //   Padding(
+                      //     padding:
+                      //         const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                      //     child: SizedBox(
+                      //       width: double.infinity,
+                      //       child: Text(
+                      //         errorMessageSave.value,
+                      //         style: const TextStyle(
+                      //           color: Constants.red,
+                      //           fontSize: 16,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
                       const SizedBox(height: 10),
                       if (showAddProduct.value)
                         Container(
@@ -614,8 +623,8 @@ class SelfBillScreen extends HookConsumerWidget {
                                             ),
                                             horiSpace,
                                             Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 5),
+                                              padding:
+                                                  const EdgeInsets.only(top: 5),
                                               child: FxTextField(
                                                 width: 120,
                                                 focusNode: fcTotalItem,
@@ -668,20 +677,20 @@ class SelfBillScreen extends HookConsumerWidget {
                                                     errorMessagePrice.value,
                                               ),
                                             ),
-                                            horiSpace,
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 5.0),
-                                              child: FxTextField(
-                                                textAlign: TextAlign.start,
-                                                width: 100,
-                                                ctrl: ctrlUom,
-                                                enabled: true,
-                                                hintText: "UOM",
-                                                labelText: "UOM",
-                                                readOnly: false,
-                                              ),
-                                            ),
+                                            // horiSpace,
+                                            // Padding(
+                                            //   padding: const EdgeInsets.only(
+                                            //       top: 5.0),
+                                            //   child: FxTextField(
+                                            //     textAlign: TextAlign.start,
+                                            //     width: 100,
+                                            //     ctrl: ctrlUom,
+                                            //     enabled: true,
+                                            //     hintText: "UOM",
+                                            //     labelText: "UOM",
+                                            //     readOnly: false,
+                                            //   ),
+                                            // ),
                                             horiSpace,
                                             if (!showTotalQtyAmount.value)
                                               Expanded(
@@ -739,8 +748,9 @@ class SelfBillScreen extends HookConsumerWidget {
                                                 pendingProduct.value =
                                                     productToAdd;
                                                 ref
-                                                    .read(selfBillAddDetailProvider
-                                                        .notifier)
+                                                    .read(
+                                                        selfBillAddDetailProvider
+                                                            .notifier)
                                                     .add(
                                                       selfBillID: selfBillID,
                                                       invoiceNo:
@@ -766,11 +776,10 @@ class SelfBillScreen extends HookConsumerWidget {
                                                           "0",
                                                       productDescription:
                                                           ctrlProductDesc.text,
-                                                      taxPercent:
-                                                          selectedProduct
-                                                                  .value
-                                                                  ?.evProductTaxPercent ??
-                                                              "0",
+                                                      taxPercent: selectedProduct
+                                                              .value
+                                                              ?.evProductTaxPercent ??
+                                                          "0",
                                                       qty: ctrlTotalItem.text,
                                                       price: ctrlPrice.text,
                                                       uom: ctrlUom.text,
@@ -785,14 +794,35 @@ class SelfBillScreen extends HookConsumerWidget {
                           ),
                         ),
                       if (errorMessageSave.value.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 4.0),
-                          child: Text(
-                            errorMessageSave.value,
-                            style: const TextStyle(
-                              color: Constants.red,
-                              fontSize: 14,
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 700),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 4,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: Colors.red.shade200,
+                                ),
+                              ),
+                              child: Text(
+                                "Error: ${errorMessageSave.value}",
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Constants.red,
+                                  fontSize: 14,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -802,8 +832,9 @@ class SelfBillScreen extends HookConsumerWidget {
                       if (selectedTabIndex.value == 0)
                         ...listProduct.value.asMap().entries.map((entry) {
                           final item = entry.value;
-                          final qty =
-                              item.qty.isEmpty ? "0" : item.qty.replaceAll(",", "");
+                          final qty = item.qty.isEmpty
+                              ? "0"
+                              : item.qty.replaceAll(",", "");
                           final price = item.unitPrice.isEmpty
                               ? "0"
                               : item.unitPrice.replaceAll(",", "");
@@ -813,12 +844,14 @@ class SelfBillScreen extends HookConsumerWidget {
                           final model = InvoiceDetailModel(
                             invoiceDetailID: "",
                             invoiceDetailInvoiceID: selfBillID,
-                            invoiceDetailEvProductID: item.product.evProductID ?? "",
+                            invoiceDetailEvProductID:
+                                item.product.evProductID ?? "",
                             evProductCode: item.product.evProductCode ?? "",
                             invoiceDetailQty: qty,
                             invoiceDetailPrice: price,
                             invoiceDetailUnit: item.uom,
-                            invoiceDetailIsActive: item.product.evProductIsActive ?? "",
+                            invoiceDetailIsActive:
+                                item.product.evProductIsActive ?? "",
                             evProductDescription: description,
                           );
                           return Padding(

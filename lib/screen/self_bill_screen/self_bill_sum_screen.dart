@@ -105,6 +105,16 @@ class SelfBillSummaryScreen extends HookConsumerWidget {
           }
         });
       }
+      if (next is SubmitLHDNStateDone) {
+        if (next.model.getError() != "") {
+          errorMessage.value = next.model.getError();
+          Timer(const Duration(seconds: 3), () {
+            if (errorMessage.value == next.model.getError()) {
+              errorMessage.value = "";
+            }
+          });
+        }
+      }
       if (next is SubmitLHDNStateError || next is SubmitLHDNStateDone) {
         ref.read(selfBillSearchProvider.notifier).search(
               startDate: searchDateFormat.format(searchStartDate.value),
@@ -181,8 +191,7 @@ class SelfBillSummaryScreen extends HookConsumerWidget {
                       hintText: "Supplier",
                       value: "",
                       onSelected: (model) {
-                        selectedSupplierName.value =
-                            model.evSupplierName ?? "";
+                        selectedSupplierName.value = model.evSupplierName ?? "";
                         ref.read(selfBillSearchProvider.notifier).search(
                               supplierName: selectedSupplierName.value,
                               startDate: searchDateFormat
@@ -291,7 +300,8 @@ class SelfBillSummaryScreen extends HookConsumerWidget {
                                           invoice.evInvoiceID;
                                       ref
                                           .read(submitLhdnProvider.notifier)
-                                          .submit(invoiceID: invoice.evInvoiceID);
+                                          .submit(
+                                              invoiceID: invoice.evInvoiceID);
                                     },
                                   );
                                 },
@@ -305,11 +315,34 @@ class SelfBillSummaryScreen extends HookConsumerWidget {
                                   ),
                                 ),
                               if (errorMessage.value != "")
-                                Text(
-                                  "Error ${errorMessage.value}",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Constants.red,
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 700),
+                                    child: Container(
+                                      margin: const EdgeInsets.only(top: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: Colors.red.shade200,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        "Error: ${errorMessage.value}",
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Constants.red,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 )
                             ],
@@ -371,7 +404,8 @@ class _SelfBillDisplay extends StatelessWidget {
     final sdfMan = DateFormat("dd MMM yyyy");
     String fdate = invoice.evInvoiceIssueDate;
     try {
-      fdate = DateFormat("dd/MM/yy").format(sdf.parse(invoice.evInvoiceIssueDate));
+      fdate =
+          DateFormat("dd/MM/yy").format(sdf.parse(invoice.evInvoiceIssueDate));
     } catch (_) {}
 
     final status = invoice.evInvoiceStatus;
@@ -379,8 +413,7 @@ class _SelfBillDisplay extends StatelessWidget {
     String submittedText = "";
     if (validationDate.isNotEmpty) {
       try {
-        submittedText =
-            "Submitted ${sdfMan.format(sdf.parse(validationDate))}";
+        submittedText = "Submitted ${sdfMan.format(sdf.parse(validationDate))}";
       } catch (_) {
         submittedText = "Submitted $validationDate";
       }
@@ -398,8 +431,7 @@ class _SelfBillDisplay extends StatelessWidget {
               SizedBox(width: 80, child: FxGrayDarkText(title: fdate)),
               const SizedBox(width: 10),
               SizedBox(
-                  width: 90,
-                  child: FxGrayDarkText(title: invoice.evInvoiceNo)),
+                  width: 90, child: FxGrayDarkText(title: invoice.evInvoiceNo)),
               const SizedBox(width: 10),
               SizedBox(
                 width: 200,

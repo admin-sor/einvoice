@@ -37,7 +37,7 @@ const invoiceSumRoute = "/invoiceSumRoute";
 const invoiceEvRoute = "/invoiceV2Route";
 const invoiceEvEditRoute = "/invoiceV2EditRoute";
 const selfBillRoute = "/selfBillRoute";
-const selfBillSumRoute = "/selfBillSumRoutexx";
+const selfBillSumRoute = "/selfBillSumRoute";
 
 class AppRoute {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -76,14 +76,14 @@ class AppRoute {
         ),
       );
     }
-    // if (settings.name == selfBillSumRoute) {
-    //   return MaterialPageRoute(
-    //     builder: (context) => MediaQuery(
-    //       data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-    //       child: const SelfBillSummaryScreen(),
-    //     ),
-    //   );
-    // }
+    if (settings.name == selfBillSumRoute) {
+      return MaterialPageRoute(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: const SelfBillSummaryScreen(),
+        ),
+      );
+    }
     //InvoiceScreen
     if (settings.name == invoiceRoute) {
       final args = settings.arguments as Map<String, dynamic>?;

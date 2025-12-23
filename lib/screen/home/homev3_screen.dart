@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:sor_inventory/screen/invoice_v2/invoice_id_provider.dart';
 
 import '../../app/app_route.dart';
 import '../../app/constants.dart';
@@ -13,6 +14,7 @@ import '../../model/sor_user_model.dart';
 import '../../widgets/end_drawer.dart';
 import '../../widgets/fx_store_lk.dart';
 import '../login/login_provider.dart';
+import '../self_bill_screen/self_bill_id_provider.dart';
 import 'screen_group_provider.dart';
 import 'select_screen_group_provider.dart';
 
@@ -22,7 +24,6 @@ class Homev3Screen extends HookConsumerWidget {
     final loginModel = useState<SorUser?>(null);
     final selectedStore = useState<Map<String, dynamic>?>(null);
     final isInit = useState(true);
-    final listScreenGroup = useState<List<ScreenGroupModel>>(List.empty());
 
     ref.listen(loginStateProvider, (prev, next) {
       if (next is LoginStateDone) {
@@ -30,11 +31,6 @@ class Homev3Screen extends HookConsumerWidget {
         if (loginModel.value?.storeID != null) {
           selectedStore.value = {"id": loginModel.value!.storeID, "name": ""};
         }
-      }
-    });
-    ref.listen(listScreenGroupStateProvider, (prev, next) {
-      if (next is ListScreenGroupStateDone) {
-        listScreenGroup.value = next.list;
       }
     });
 
@@ -112,76 +108,54 @@ class Homev3Screen extends HookConsumerWidget {
                     height: MediaQuery.of(context).size.height - 160,
                     color: Constants.colorHomeV3TopBg,
                     child: Column(children: [
-                      if (listScreenGroup.value.isNotEmpty)
-                        const SizedBox(height: 30),
-                      if (listScreenGroup.value.isNotEmpty)
-                        Row(
-                          children: [
-                            const SizedBox(width: 30),
-                            Expanded(
-                              child: _CardGroupMenu(
-                                idx: 0,
-                                models: listScreenGroup.value,
-                              ),
+                      const SizedBox(height: 30),
+                      const Row(
+                        children: [
+                          SizedBox(width: 30),
+                          Expanded(
+                            child: _CardGroupMenuFix(
+                              title: "Invoice",
+                              icon: "images/v3_po.png",
+                              route: invoiceRoute,
                             ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: _CardGroupMenu(
-                                idx: 1,
-                                models: listScreenGroup.value,
-                              ),
+                          ),
+                          SizedBox(width: 20),
+                          Expanded(
+                            child: _CardGroupMenuFix(
+                              title: "Invoice Summary",
+                              icon: "images/v3_do.png",
+                              route: invoiceSumRoute,
                             ),
-                            const SizedBox(width: 30),
-                          ],
-                        ),
-                      if (listScreenGroup.value.isNotEmpty)
-                        const SizedBox(height: 20),
-                      if (listScreenGroup.value.length > 2)
-                        Row(
-                          children: [
-                            const SizedBox(width: 30),
-                            Expanded(
-                              child: _CardGroupMenu(
-                                idx: 2,
-                                models: listScreenGroup.value,
-                              ),
+                          ),
+                          SizedBox(width: 30),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          const SizedBox(width: 30),
+                          const Expanded(
+                            child: _CardGroupMenuFix(
+                              title: "Self Bill",
+                              icon: "images/v3_po.png",
+                              route: selfBillRoute,
                             ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: _CardGroupMenu(
-                                idx: 3,
-                                models: listScreenGroup.value,
-                              ),
+                          ),
+                          const SizedBox(width: 20),
+                          const Expanded(
+                            child: _CardGroupMenuFix(
+                              title: "Self Bill Summary",
+                              icon: "images/v3_do.png",
+                              route: selfBillSumRoute,
                             ),
-                            const SizedBox(width: 30),
-                          ],
-                        ),
-                      if (listScreenGroup.value.length > 2)
-                        const SizedBox(height: 20),
-                      if (listScreenGroup.value.length > 4)
-                        Row(
-                          children: [
-                            const SizedBox(width: 30),
-                            Expanded(
-                              child: _CardGroupMenu(
-                                idx: 4,
-                                models: listScreenGroup.value,
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: _CardGroupMenu(
-                                idx: 5,
-                                models: listScreenGroup.value,
-                              ),
-                            ),
-                            const SizedBox(width: 30),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: 30),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                     ]),
                   ),
-                  if (listScreenGroup.value.length > 4)
-                    const SizedBox(height: 10),
+                  const SizedBox(height: 10),
                 ]),
               ),
             ),
@@ -319,7 +293,9 @@ class _CardGroupMenu extends HookConsumerWidget {
     String title = models[idx].screenGroupName ?? "-";
     String icon = models[idx].screenGroupIcon ?? "";
 
-    return InkWell(
+    return _CardGroupMenuBase(
+      title: title,
+      icon: icon,
       onTap: () {
         ref.read(selectScreenGroupProvider.notifier).state = models[idx];
         var quick = models
@@ -329,6 +305,52 @@ class _CardGroupMenu extends HookConsumerWidget {
         ref.read(quickScreenGroupProvider.notifier).state = quick;
         Navigator.of(context).pushNamed(subHomeRoute);
       },
+    );
+  }
+}
+
+class _CardGroupMenuFix extends HookConsumerWidget {
+  final String title;
+  final String icon;
+  final String route;
+  const _CardGroupMenuFix({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.route,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _CardGroupMenuBase(
+      title: title,
+      icon: icon,
+      onTap: () {
+        if (route == selfBillRoute) {
+          ref.read(selfBillIDProvider.notifier).state = "0";
+        }
+        Navigator.of(context).pushNamed(route);
+      },
+    );
+  }
+}
+
+class _CardGroupMenuBase extends StatelessWidget {
+  final String title;
+  final String icon;
+  final VoidCallback onTap;
+  const _CardGroupMenuBase({
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const double height = 180;
+
+    return InkWell(
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Constants.colorHomeV3GreenDark,
