@@ -7,6 +7,8 @@ class FxGrayDarkText extends StatelessWidget {
   final TextAlign? align;
   final Color? color;
   final double? fontSize;
+  final TextOverflow overflow;
+  final bool softWrap;
   const FxGrayDarkText({
     Key? key,
     required this.title,
@@ -14,15 +16,18 @@ class FxGrayDarkText extends StatelessWidget {
     this.maxLines,
     this.align,
     this.color,
-    this.fontSize = 16
+    this.fontSize = 16,
+    this.overflow = TextOverflow.ellipsis,
+    this.softWrap = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Text(
       title,
-      overflow: TextOverflow.ellipsis,
+      overflow: overflow,
       maxLines: maxLines,
+      softWrap: softWrap,
       textAlign: align,
       style: TextStyle(
         color: color,

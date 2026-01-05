@@ -19,6 +19,7 @@ class ClientModel {
   String? evClientPic;
   String? evClientEmail;
   String? evClientPhone;
+  String? evClientType;
   String? evClientCountry;
   String? evClientCity;
   String? evClientPostal;
@@ -37,6 +38,7 @@ class ClientModel {
     this.evClientPic,
     this.evClientEmail,
     this.evClientPhone,
+    this.evClientType,
     this.evClientCountry,
     this.evClientCity,
     this.evClientPostal,
@@ -57,6 +59,7 @@ class ClientModel {
       evClientPic: json['evClientPic'] ?? "",
       evClientEmail: json['evClientEmail'] ?? "",
       evClientPhone: json['evClientPhone'] ?? "",
+      evClientType: json['evClientType'] ?? "",
       evClientCountry: json['evClientCountry'] ?? "",
       evClientCity: json['evClientCity'] ?? "",
       evClientPostal: json['evClientPostal'] ?? "",
@@ -78,6 +81,7 @@ class ClientModel {
       'evClientPic': evClientPic,
       'evClientEmail': evClientEmail,
       'evClientPhone': evClientPhone,
+      'evClientType': evClientType,
       'evClientCountry': evClientCountry,
       'evClientCity': evClientCity,
       'evClientPostal': evClientPostal,

@@ -33,6 +33,7 @@ class FxTextField extends HookWidget {
   final EdgeInsets? contentPadding;
   final bool isFixedTitle;
   final bool forceHighlight;
+  final bool isMultiline;
   const FxTextField({
     Key? key,
     this.width,
@@ -62,6 +63,7 @@ class FxTextField extends HookWidget {
     this.maxLengthOld,
     this.isFixedTitle = false,
     this.forceHighlight = false,
+    this.isMultiline = false,
   }) : super(key: key);
 
   @override
@@ -113,8 +115,10 @@ class FxTextField extends HookWidget {
                 ),
                 child: TextField(
                   inputFormatters: myFormatter,
-                  keyboardType: textInputType,
+                  keyboardType:
+                      isMultiline ? TextInputType.multiline : textInputType,
                   textAlign: textAlign,
+                  maxLines: isMultiline ? 5 : 1,
                   maxLength: maxLengthOld,
                   autofocus: autoFocus,
                   textInputAction: action,
@@ -175,9 +179,9 @@ class FxTextField extends HookWidget {
                     ),
                     labelText: isFixedTitle ? "" : labelText,
                     hintText: isFixedTitle ? "" : hintText,
-                    labelStyle: const TextStyle(
+                    labelStyle: TextStyle(
                       fontSize: 16,
-                      color: Constants.greenDark,
+                      color: readOnly ? Constants.greyLight : Constants.greenDark,
                     ),
                     hintStyle: const TextStyle(
                       fontSize: 16,

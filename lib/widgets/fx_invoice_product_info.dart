@@ -77,7 +77,11 @@ class FxInvoiceProductInfo extends HookConsumerWidget {
                 const SizedBox(height: 10),
                 FxGrayDarkText(title: model.evProductCode),
                 const SizedBox(height: 5),
-                FxGrayDarkText(title: model.evProductDescription),
+                FxGrayDarkText(
+                  title: model.evProductDescription,
+                  maxLines: 5,
+                  overflow: TextOverflow.visible,
+                ),
                 const SizedBox(height: 10),
                 if (errorMessage.value != "")
                   Padding(
@@ -182,7 +186,7 @@ class _LeftColumn extends StatelessWidget {
         Expanded(
           child: FxGrayDarkText(
             title: value,
-            maxLines: 2,
+            maxLines: 5,
           ),
         ),
         const SizedBox(width: 30),

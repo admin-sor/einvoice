@@ -64,6 +64,11 @@ class FxAcSupplier extends HookConsumerWidget {
           enabled: !readOnly,
           labelText: labelText,
           hintText: hintText,
+          suffix: Image.asset(
+            "images/icon_triangle_down.png",
+            height: 48,
+            width: 48,
+          ),
           contentPadding: contentPadding,
           ctrl: ctrl,
           onChanged: (v) {
@@ -129,9 +134,9 @@ class FxAcSupplier extends HookConsumerWidget {
         );
       },
       optionsBuilder: (editingValue) async {
-        if (editingValue.text == "") {
-          return [];
-        }
+        // if (editingValue.text == "") {
+        //   return [];
+        // }
         try {
           cancelToken.value.cancel("Cancel Mine");
           cancelToken.value = CancelToken();

@@ -8,11 +8,14 @@ import 'package:sor_inventory/screen/invoice_v2/invoice_v2_sum_screen.dart';
 import 'package:sor_inventory/screen/product/product_edit_screen.dart';
 import 'package:sor_inventory/screen/self_bill_screen/self_bill_screen.dart';
 import 'package:sor_inventory/screen/self_bill_screen/self_bill_sum_screen.dart';
+import 'package:sor_inventory/screen/supplier/supplier_edit_screen.dart';
+import 'package:sor_inventory/screen/supplier/supplier_screen.dart';
 
 import '../model/client_model.dart';
 import '../model/invoice_model.dart';
 import '../model/invoice_v2_model.dart';
 import '../model/product_model.dart';
+import '../model/supplier_model.dart';
 import '../screen/client/client_screen.dart';
 import '../screen/home/home_screen.dart';
 import '../screen/home/homev3_screen.dart';
@@ -26,6 +29,8 @@ const homeV3Route = "/homeV3Screen";
 const subHomeRoute = "/subHomeRoute";
 const clientRoute = "/clientRoute";
 const clientEditRoute = "/clientEditRoute";
+const supplierRoute = "/supplierxRoute";
+const supplierEditRoute = "/supplierxEditRoute";
 
 const productRoute = "/productRoute";
 const productEditRoute = "/productEditRoute";
@@ -145,6 +150,26 @@ class AppRoute {
         builder: (context) => MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
           child: ClientScreen(),
+        ),
+      );
+    }
+    if (settings.name == supplierRoute) {
+      return MaterialPageRoute(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: const SupplierScreen(),
+        ),
+      );
+    }
+    if (settings.name == supplierEditRoute) {
+      final args = settings.arguments as Map<String, dynamic>?;
+      final supplier = args?['supplier'] as SupplierModel?;
+      final query = (args?['query'] ?? "") as String;
+
+      return MaterialPageRoute(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: SupplierEditScreen(supplier: supplier!, query: query),
         ),
       );
     }

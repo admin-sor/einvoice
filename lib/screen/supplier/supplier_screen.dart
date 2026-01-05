@@ -3,51 +3,49 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:sor_inventory/app/app_route.dart';
 
 import '../../app/constants.dart';
-import '../../model/product_model.dart'; // Import product model
-import 'package:intl/intl.dart';
+import '../../model/supplier_model.dart';
 import '../../widgets/end_drawer.dart';
 import '../../widgets/fx_black_text.dart';
 import '../../widgets/fx_text_field.dart';
-import 'product_search_provider.dart';
+import 'supplier_search_with_own_provider.dart';
 
-class ProductScreen extends HookConsumerWidget {
-  // Renamed class
-  const ProductScreen({Key? key}) : super(key: key);
+const supplierEditRoute = "/supplierEditRoute";
+
+class SupplierScreen extends HookConsumerWidget {
+  const SupplierScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ctrlSearch = useTextEditingController(text: "");
     final errorMessage = useState("");
     final isLoading = useState(false);
-    final isInitLoading = useState(true); // Added for initial search
+    final isInitLoading = useState(true);
 
-    final listProduct =
-        useState<List<ProductModel>>(List.empty()); // Use ProductModel
+    final listSupplier = useState<List<SupplierModel>>(List.empty());
 
-    // Perform initial search
     if (isInitLoading.value) {
       isInitLoading.value = false;
       WidgetsBinding.instance.addPostFrameCallback((tmr) {
-        ref.read(productSearchProvider.notifier).search(query: ctrlSearch.text);
+        ref
+            .read(supplierSearchWithOwnProvider.notifier)
+            .search(query: ctrlSearch.text);
       });
     }
 
-    // Listen to product search provider
-    ref.listen(productSearchProvider, (prev, next) {
-      if (next is ProductSearchStateLoading) {
+    ref.listen(supplierSearchWithOwnProvider, (prev, next) {
+      if (next is SupplierSearchWithOwnStateLoading) {
         isLoading.value = true;
-      } else if (next is ProductSearchStateError) {
+      } else if (next is SupplierSearchWithOwnStateError) {
         isLoading.value = false;
         errorMessage.value = next.message;
         Timer(const Duration(seconds: 3), () {
           errorMessage.value = "";
         });
-      } else if (next is ProductSearchStateDone) {
+      } else if (next is SupplierSearchWithOwnStateDone) {
         isLoading.value = false;
-        listProduct.value = next.model;
+        listSupplier.value = next.model;
       }
     });
 
@@ -57,7 +55,7 @@ class ProductScreen extends HookConsumerWidget {
         automaticallyImplyLeading: true,
         centerTitle: true,
         title: const Text(
-          "Product", // Changed title
+          "Supplier",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -101,12 +99,11 @@ class ProductScreen extends HookConsumerWidget {
           ),
         ),
         onPressed: () {
-          // Navigate to product edit route
           Navigator.of(context).pushNamed(
-            productEditRoute, // Assuming productEditRoute exists
+            supplierEditRoute,
             arguments: {
               "query": ctrlSearch.text,
-              "product": ProductModel(evProductID: "0")
+              "supplier": SupplierModel(evSupplierID: "0")
             },
           );
         },
@@ -131,12 +128,12 @@ class ProductScreen extends HookConsumerWidget {
               ),
               FxTextField(
                 ctrl: ctrlSearch,
-                labelText: "Search Name", // Changed label
+                labelText: "Search Name",
                 width: MediaQuery.of(context).size.width,
                 suffix: InkWell(
                   onTap: () {
                     ref
-                        .read(productSearchProvider.notifier)
+                        .read(supplierSearchWithOwnProvider.notifier)
                         .search(query: ctrlSearch.text);
                   },
                   child: const Padding(
@@ -152,36 +149,38 @@ class ProductScreen extends HookConsumerWidget {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
-                    width: 800, // Adjust width as needed
+                    width: 1300,
                     child: Column(
                       children: [
-                        const _Header(), // Keep _Header structure, will modify below
+                        _Header(
+                          model: listSupplier.value.isNotEmpty
+                              ? listSupplier.value[0]
+                              : null,
+                        ),
                         const Divider(
                           color: Constants.greenDark,
                         ),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: listProduct.value.length,
+                            itemCount: listSupplier.value.length,
                             itemBuilder: (context, idx) {
-                              final product =
-                                  listProduct.value[idx]; // Use product
+                              final supplier = listSupplier.value[idx];
                               return InkWell(
-                                  // Added InkWell for tapping rows
-                                  onTap: () {
-                                    final param = {
-                                      "product": product, // Pass product
-                                      "query": ctrlSearch.text
-                                    };
-                                    Navigator.of(context).pushNamed(
-                                      productEditRoute, // Navigate to product edit
-                                      arguments: param,
-                                    );
-                                  },
-                                  child: _ProductDetailRow(
-                                    // Use _ProductDetailRow
-                                    isOdd: (idx % 2 == 0),
-                                    product: product, // Pass product
-                                  ));
+                                onTap: () {
+                                  final param = {
+                                    "supplier": supplier,
+                                    "query": ctrlSearch.text
+                                  };
+                                  Navigator.of(context).pushNamed(
+                                    supplierEditRoute,
+                                    arguments: param,
+                                  );
+                                },
+                                child: _SupplierDetailRow(
+                                  isOdd: (idx % 2 == 0),
+                                  supplier: supplier,
+                                ),
+                              );
                             },
                           ),
                         )
@@ -190,7 +189,6 @@ class ProductScreen extends HookConsumerWidget {
                   ),
                 ),
               ),
-              // Display error message if not empty
               if (errorMessage.value.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -199,7 +197,6 @@ class ProductScreen extends HookConsumerWidget {
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
-              // Show loading indicator
               if (isLoading.value)
                 const Padding(
                   padding: EdgeInsets.only(top: 8.0),
@@ -213,39 +210,66 @@ class ProductScreen extends HookConsumerWidget {
   }
 }
 
-// Helper widget for header row
 class _Header extends StatelessWidget {
-  const _Header({Key? key}) : super(key: key);
+  final SupplierModel? model;
+  _Header({Key? key, required this.model}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        SizedBox(
-          width: 120,
-          child: FxBlackText(
-            title: "Code",
-            color: Constants.greenDark,
-            isBold: false,
-          ),
-        ),
         Expanded(
             child: FxBlackText(
-          title: "Description",
+          title: "Name",
           color: Constants.greenDark,
           isBold: false,
         )),
         SizedBox(
             width: 200,
             child: FxBlackText(
-              title: "Unit",
+              title: "Address",
               color: Constants.greenDark,
               isBold: false,
             )),
         SizedBox(
             width: 150,
             child: FxBlackText(
-              title: "Price",
+              title: model?.evSupplierBusinessRegType ?? "BRN",
+              color: Constants.greenDark,
+              isBold: false,
+            )),
+        SizedBox(
+            width: 150,
+            child: FxBlackText(
+              title: "SST No",
+              color: Constants.greenDark,
+              isBold: false,
+            )),
+        SizedBox(
+            width: 150,
+            child: FxBlackText(
+              title: "TIN No",
+              color: Constants.greenDark,
+              isBold: false,
+            )),
+        SizedBox(
+            width: 150,
+            child: FxBlackText(
+              title: "PIC",
+              color: Constants.greenDark,
+              isBold: false,
+            )),
+        SizedBox(
+            width: 150,
+            child: FxBlackText(
+              title: "Phone",
+              color: Constants.greenDark,
+              isBold: false,
+            )),
+        SizedBox(
+            width: 200,
+            child: FxBlackText(
+              title: "Email",
               color: Constants.greenDark,
               isBold: false,
             )),
@@ -254,55 +278,73 @@ class _Header extends StatelessWidget {
   }
 }
 
-// Helper widget for product detail row
-class _ProductDetailRow extends StatelessWidget {
-  final ProductModel product; // Use ProductModel
+class _SupplierDetailRow extends StatelessWidget {
+  final SupplierModel supplier;
   final bool isOdd;
-  const _ProductDetailRow({
+  const _SupplierDetailRow({
     Key? key,
-    required this.product,
+    required this.supplier,
     required this.isOdd,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var fmtPrice = "";
-    try {
-      if (product.evProductPrice != null) {
-        final price = double.parse(product.evProductPrice!);
-        final formatter = NumberFormat("#,##0.00", "en_US");
-        fmtPrice = formatter.format(price);
-      }
-    } catch (_) {
-      fmtPrice = product.evProductPrice ?? "";
-    }
+    String address = supplier.evSupplierAddr1 ?? "";
+    address += " ";
+    address += supplier.evSupplierAddr2 ?? "";
+    address = "${address.trim()} ";
+    address += supplier.evSupplierAddr3 ?? "";
+    address = address.trim();
     return Container(
-      // color: isOdd ? null : Constants.greenLight.withOpacity(0.2),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: Row(
           children: [
-            SizedBox(
-                width: 120,
-                child: FxBlackText(
-                  title: product.evProductCode ?? "",
-                  isBold: false,
-                )),
             Expanded(
                 child: FxBlackText(
-              title: product.evProductDescription ?? "",
+              title: supplier.evSupplierName ?? "",
               isBold: false,
             )),
             SizedBox(
                 width: 200,
                 child: FxBlackText(
-                  title: product.evProductUnit ?? "",
+                  title: address,
                   isBold: false,
                 )),
             SizedBox(
                 width: 150,
                 child: FxBlackText(
-                  title: fmtPrice,
+                  title: supplier.evSupplierBusinessRegNo ?? "",
+                  isBold: false,
+                )),
+            SizedBox(
+                width: 150,
+                child: FxBlackText(
+                  title: supplier.evSupplierSstNo ?? "",
+                  isBold: false,
+                )),
+            SizedBox(
+                width: 150,
+                child: FxBlackText(
+                  title: supplier.evSupplierTinNo ?? "",
+                  isBold: false,
+                )),
+            SizedBox(
+                width: 150,
+                child: FxBlackText(
+                  title: supplier.evSupplierPic ?? "",
+                  isBold: false,
+                )),
+            SizedBox(
+                width: 150,
+                child: FxBlackText(
+                  title: supplier.evSupplierPhone ?? "",
+                  isBold: false,
+                )),
+            SizedBox(
+                width: 200,
+                child: FxBlackText(
+                  title: supplier.evSupplierEmail ?? "",
                   isBold: false,
                 )),
           ],
@@ -311,5 +353,3 @@ class _ProductDetailRow extends StatelessWidget {
     );
   }
 }
-
-// Removed _MaterialMdDetail and _RoField widgets

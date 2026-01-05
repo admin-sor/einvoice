@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:sor_inventory/model/client_model.dart';
-import 'package:sor_inventory/screen/client/client_edit_provider.dart';
+import 'package:sor_inventory/model/supplier_model.dart';
+import 'package:sor_inventory/screen/supplier/supplier_delete_provider.dart';
+import 'package:sor_inventory/screen/supplier/supplier_edit_provider.dart';
 import 'package:sor_inventory/widgets/fx_id_type_lk.dart';
 import '../../app/constants.dart';
 import '../../widgets/end_drawer.dart';
 import '../../widgets/fx_button.dart';
 import '../../widgets/fx_gray_dark_text.dart';
 import '../../widgets/fx_text_field.dart';
-import 'client_delete_provider.dart';
 
-class ClientEditScreen extends HookConsumerWidget {
-  final ClientModel client;
+class SupplierEditScreen extends HookConsumerWidget {
+  final SupplierModel supplier;
   final String query; // Used to refresh the list after saving
-  const ClientEditScreen({
+  const SupplierEditScreen({
     Key? key,
-    required this.client,
+    required this.supplier,
     this.query = "",
   }) : super(key: key);
 
@@ -24,40 +24,42 @@ class ClientEditScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = useState(false);
     final errorMessage = useState("");
-    final isSelfBillClient = useState(client.evClientType == "O");
+    final isInvoiceSupplier = useState(supplier.evSupplierType == "O");
 
-    final ctrlName = useTextEditingController(text: client.evClientName);
+    final ctrlName = useTextEditingController(text: supplier.evSupplierName);
     final ctrlBusinessRegNo =
-        useTextEditingController(text: client.evClientBusinessRegNo);
-    final ctrlSstNo = useTextEditingController(text: client.evClientSstNo);
-    final ctrlTinNo = useTextEditingController(text: client.evClientTinNo);
-    final ctrlAddr1 = useTextEditingController(text: client.evClientAddr1);
-    final ctrlAddr2 = useTextEditingController(text: client.evClientAddr2);
-    final ctrlAddr3 = useTextEditingController(text: client.evClientAddr3);
-    final ctrlPic = useTextEditingController(text: client.evClientPic);
-    final ctrlEmail = useTextEditingController(text: client.evClientEmail);
-    final ctrlPhone = useTextEditingController(text: client.evClientPhone);
+        useTextEditingController(text: supplier.evSupplierBusinessRegNo);
+    final ctrlSstNo = useTextEditingController(text: supplier.evSupplierSstNo);
+    final ctrlTinNo = useTextEditingController(text: supplier.evSupplierTinNo);
+    final ctrlAddr1 = useTextEditingController(text: supplier.evSupplierAddr1);
+    final ctrlAddr2 = useTextEditingController(text: supplier.evSupplierAddr2);
+    final ctrlAddr3 = useTextEditingController(text: supplier.evSupplierAddr3);
+    final ctrlPic = useTextEditingController(text: supplier.evSupplierPic);
+    final ctrlEmail = useTextEditingController(text: supplier.evSupplierEmail);
+    final ctrlPhone = useTextEditingController(text: supplier.evSupplierPhone);
 
-    ref.listen(clientEditProvider, (prev, next) {
-      if (next is ClientEditStateLoading) {
+    ref.listen(supplierEditProvider, (prev, next) {
+      if (next is SupplierEditStateLoading) {
         isLoading.value = true;
-      } else if (next is ClientEditStateError) {
+      } else if (next is SupplierEditStateError) {
         errorMessage.value = next.message;
         isLoading.value = false;
-      } else if (next is ClientEditStateDone) {
+      } else if (next is SupplierEditStateDone) {
         isLoading.value = false;
         Navigator.of(context).pop(); // Pop screen on successful save
       }
     });
-    final ctrlIdType =
-        useTextEditingController(text: client.evClientBusinessRegType ?? "BRN");
+
+    final ctrlIdType = useTextEditingController(
+        text: supplier.evSupplierBusinessRegType ?? "BRN");
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.colorAppBarBg,
         automaticallyImplyLeading: true,
         centerTitle: true,
         title: Text(
-          client.evClientID == "0" ? "New Client" : "Edit Client",
+          supplier.evSupplierID == "0" ? "New Supplier" : "Edit Supplier",
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -79,7 +81,7 @@ class ClientEditScreen extends HookConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.only(right: 10.0),
                 child: Image.asset(
-                  "images/icon_menu.png", // Placeholder, replace if necessary
+                  "images/icon_menu.png",
                   width: 36,
                   height: 36,
                 ),
@@ -91,49 +93,35 @@ class ClientEditScreen extends HookConsumerWidget {
           ),
         ],
       ),
-      endDrawer: const EndDrawer(), // Assuming EndDrawer is a common widget
+      endDrawer: const EndDrawer(),
       body: Container(
         color: Colors.white,
         height: MediaQuery.of(context).size.height,
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: SingleChildScrollView(
-            // Use SingleChildScrollView for long forms
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: Constants.paddingTopContent),
-                // Read-only Client ID if editing, maybe hidden for new
-                // if (client.evClientID != "0")
-                //   FxTextField(
-                //     readOnly: true,
-                //     enabled: false,
-                //     labelText: "Client ID",
-                //     hintText: client.evClientID,
-                //     ctrl: TextEditingController(
-                //         text: client.evClientID), // Displaying ID
-                //     width: double.infinity,
-                //   ),
-                // const SizedBox(height: 10),
                 FxTextField(
                   ctrl: ctrlName,
-                  labelText: "Client Name",
-                  hintText: "Client Name",
+                  labelText: "Supplier Name",
+                  hintText: "Supplier Name",
                   width: double.infinity,
-                  // Add validation indicator if needed
                 ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
                     Checkbox(
-                      value: isSelfBillClient.value,
+                      value: isInvoiceSupplier.value,
                       onChanged: (value) {
                         if (value == null) return;
-                        isSelfBillClient.value = value;
+                        isInvoiceSupplier.value = value;
                       },
                     ),
-                    const Text("Self Bill Client"),
+                    const Text("Invoice Supplier"),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -148,20 +136,19 @@ class ClientEditScreen extends HookConsumerWidget {
                         width: double.infinity,
                       ),
                     ),
-                    SizedBox(
-                      width: 20,
-                    ),
+                    const SizedBox(width: 20),
                     Expanded(
-                        child: FxFilterIdTypeLk(
-                      labelText: "Type",
-                      hintText: "Type",
-                      initialValue: IdTypeLkModel(
-                          client.evClientBusinessRegType ?? "BRN",
-                          client.evClientBusinessRegType ?? "BRN"),
-                      onChanged: (m) {
-                        ctrlIdType.text = m.code;
-                      },
-                    )),
+                      child: FxFilterIdTypeLk(
+                        labelText: "Type",
+                        hintText: "Type",
+                        initialValue: IdTypeLkModel(
+                            supplier.evSupplierBusinessRegType ?? "BRN",
+                            supplier.evSupplierBusinessRegType ?? "BRN"),
+                        onChanged: (m) {
+                          ctrlIdType.text = m.code;
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -212,7 +199,6 @@ class ClientEditScreen extends HookConsumerWidget {
                   labelText: "Email",
                   hintText: "Email",
                   width: double.infinity,
-                  // Add email validation if needed
                 ),
                 const SizedBox(height: 10),
                 FxTextField(
@@ -220,17 +206,14 @@ class ClientEditScreen extends HookConsumerWidget {
                   labelText: "Phone",
                   hintText: "Phone",
                   width: double.infinity,
-                  // Add phone validation if needed
                 ),
                 const SizedBox(height: 20),
-
                 if (errorMessage.value != "")
                   FxGrayDarkText(
                     color: Constants.red,
                     title: errorMessage.value,
                   ),
                 const SizedBox(height: 10),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -238,56 +221,57 @@ class ClientEditScreen extends HookConsumerWidget {
                       child: SizedBox(width: 10),
                     ),
                     const SizedBox(width: 20),
-                    if (client.evClientID != null && client.evClientID != "0")
+                    if (supplier.evSupplierID != null &&
+                        supplier.evSupplierID != "0")
                       Expanded(
                         child: FxButton(
                           title: "Delete",
                           color: Constants.red,
                           onPress: () {
-                            ref.read(clientDeleteProvider.notifier).delete(
-                                  clientId: int.parse(client.evClientID!),
+                            ref.read(supplierDeleteProvider.notifier).delete(
+                                  supplierId:
+                                      int.parse(supplier.evSupplierID!),
                                   query: query,
                                 );
                             Navigator.of(context).pop();
                           },
                         ),
                       ),
-                    if (client.evClientID != null && client.evClientID != "0") const SizedBox(width: 20),
+                    if (supplier.evSupplierID != null &&
+                        supplier.evSupplierID != "0")
+                      const SizedBox(width: 20),
                     Expanded(
                       child: FxButton(
                         title: "Save",
                         color: Constants.greenDark,
                         isLoading: isLoading.value,
                         onPress: () {
-                          // Basic validation
                           if (ctrlName.text.trim().isEmpty) {
-                            errorMessage.value = "Client Name is mandatory";
+                            errorMessage.value = "Supplier Name is mandatory";
                             return;
                           }
-                          // More validation can be added here for other fields
 
-                          // Clear previous error message on attempting save
                           errorMessage.value = "";
 
-                          ref.read(clientEditProvider.notifier).edit(
-                                evClientID:
-                                    int.tryParse(client.evClientID ?? "0") ??
-                                        0, // Convert ID to int
-                                evClientType:
-                                    isSelfBillClient.value ? "O" : "",
-                                evClientBusinessRegType: ctrlIdType.text,
-                                evClientName: ctrlName.text.trim(),
-                                evClientBusinessRegNo:
+                          ref.read(supplierEditProvider.notifier).edit(
+                                evSupplierID: int.tryParse(
+                                        supplier.evSupplierID ?? "0") ??
+                                    0,
+                                evSupplierType:
+                                    isInvoiceSupplier.value ? "O" : "",
+                                evSupplierBusinessRegType: ctrlIdType.text,
+                                evSupplierName: ctrlName.text.trim(),
+                                evSupplierBusinessRegNo:
                                     ctrlBusinessRegNo.text.trim(),
-                                evClientSstNo: ctrlSstNo.text.trim(),
-                                evClientTinNo: ctrlTinNo.text.trim(),
-                                evClientAddr1: ctrlAddr1.text.trim(),
-                                evClientAddr2: ctrlAddr2.text.trim(),
-                                evClientAddr3: ctrlAddr3.text.trim(),
-                                evClientPic: ctrlPic.text.trim(),
-                                evClientEmail: ctrlEmail.text.trim(),
-                                evClientPhone: ctrlPhone.text.trim(),
-                                query: query, // Pass the original search query
+                                evSupplierSstNo: ctrlSstNo.text.trim(),
+                                evSupplierTinNo: ctrlTinNo.text.trim(),
+                                evSupplierAddr1: ctrlAddr1.text.trim(),
+                                evSupplierAddr2: ctrlAddr2.text.trim(),
+                                evSupplierAddr3: ctrlAddr3.text.trim(),
+                                evSupplierPic: ctrlPic.text.trim(),
+                                evSupplierEmail: ctrlEmail.text.trim(),
+                                evSupplierPhone: ctrlPhone.text.trim(),
+                                query: query,
                               );
                         },
                       ),
@@ -295,7 +279,7 @@ class ClientEditScreen extends HookConsumerWidget {
                     const SizedBox(width: 20),
                   ],
                 ),
-                const SizedBox(height: 20), // Add some space at the bottom
+                const SizedBox(height: 20),
               ],
             ),
           ),

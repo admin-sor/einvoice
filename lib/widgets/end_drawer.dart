@@ -103,62 +103,62 @@ class EndDrawer extends HookConsumerWidget {
             //       //Navigator.of(context).pushNamed(ChangePasswordRoute);
             //     }),
             // const SizedBox(height: vSpacing),
-            FxItemMenuDrawer(
-                imageString: "images/icon_setting.png",
-                title: "Setting",
-                onPress: () {
-                  Navigator.of(context).pop();
-                  //Navigator.of(context).pushNamed(ChangePasswordRoute);
-                }),
-            Row(
-              children: [
-                const SizedBox(width: 40),
-                Text(
-                  errorMessage.value == ""
-                      ? "Auto Invoice Number"
-                      : "Auto Invoice Err ${errorMessage.value}",
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: errorMessage.value == ""
-                        ? Constants.greenDark
-                        : Constants.red,
-                  ),
-                ),
-                const SizedBox(width: 32),
-                InkWell(
-                  onTap: () {
-                    if (mobileConfig.value == null) return;
-                    final MobileConfigModel model = MobileConfigModel(
-                      mobileConfigAutoInvoice:
-                          mobileConfig.value!.mobileConfigAutoInvoice == "N"
-                              ? "Y"
-                              : "N",
-                      mobileconfigID: mobileConfig.value!.mobileconfigID,
-                    );
-                    ref
-                        .read(settingUpdateProvider.notifier)
-                        .update(model: model);
-                  },
-                  child: isLoading.value
-                      ? const SizedBox(
-                          width: 32,
-                          height: 32,
-                          child: Padding(
-                            padding: EdgeInsets.all(4.0),
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : Image.asset(
-                          mobileConfig.value?.mobileConfigAutoInvoice == "Y"
-                              ? "./images/icon_on.png"
-                              : "./images/icon_off.png",
-                          width: 32,
-                          height: 32,
-                        ),
-                ),
-              ],
-            ),
+            // FxItemMenuDrawer(
+            //     imageString: "images/icon_setting.png",
+            //     title: "Setting",
+            //     onPress: () {
+            //       Navigator.of(context).pop();
+            //       //Navigator.of(context).pushNamed(ChangePasswordRoute);
+            //     }),
+            // Row(
+            //   children: [
+            //     const SizedBox(width: 40),
+            //     Text(
+            //       errorMessage.value == ""
+            //           ? "Auto Invoice Number"
+            //           : "Auto Invoice Err ${errorMessage.value}",
+            //       overflow: TextOverflow.ellipsis,
+            //       style: TextStyle(
+            //         fontSize: 14,
+            //         color: errorMessage.value == ""
+            //             ? Constants.greenDark
+            //             : Constants.red,
+            //       ),
+            //     ),
+            //     const SizedBox(width: 32),
+            //     InkWell(
+            //       onTap: () {
+            //         if (mobileConfig.value == null) return;
+            //         final MobileConfigModel model = MobileConfigModel(
+            //           mobileConfigAutoInvoice:
+            //               mobileConfig.value!.mobileConfigAutoInvoice == "N"
+            //                   ? "Y"
+            //                   : "N",
+            //           mobileconfigID: mobileConfig.value!.mobileconfigID,
+            //         );
+            //         ref
+            //             .read(settingUpdateProvider.notifier)
+            //             .update(model: model);
+            //       },
+            //       child: isLoading.value
+            //           ? const SizedBox(
+            //               width: 32,
+            //               height: 32,
+            //               child: Padding(
+            //                 padding: EdgeInsets.all(4.0),
+            //                 child: CircularProgressIndicator(),
+            //               ),
+            //             )
+            //           : Image.asset(
+            //               mobileConfig.value?.mobileConfigAutoInvoice == "Y"
+            //                   ? "./images/icon_on.png"
+            //                   : "./images/icon_off.png",
+            //               width: 32,
+            //               height: 32,
+            //             ),
+            //     ),
+            //   ],
+            // ),
             const SizedBox(height: vSpacing),
             FxItemMenuDrawer(
                 imageString: "images/icon_logout.png",

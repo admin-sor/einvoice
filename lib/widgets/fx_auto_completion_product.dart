@@ -83,6 +83,11 @@ class FxAutoCompletionProduct extends HookConsumerWidget {
               onChanged: (v) {
                 fc.requestFocus();
               },
+              suffix: Image.asset(
+                "images/icon_triangle_down.png",
+                height: 48,
+                width: 48,
+              ),
               width: maxWidth,
               onSubmitted: (v) {
                 if (firstModel.value != null) {
@@ -93,60 +98,66 @@ class FxAutoCompletionProduct extends HookConsumerWidget {
             );
           },
           optionsViewBuilder: (context, onSelected, listModel) {
+            const optionsWidth = 310.0;
             return Align(
               alignment: Alignment.topLeft,
               child: Material(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Constants.greenDark),
-                  ),
-                  width: kIsWeb
-                      ? Constants.webWidth - 40
-                      : MediaQuery.of(context).size.width - 50,
-                  height: 500,
-                  child: MediaQuery.removePadding(
-                    context: context,
-                    removeTop: true,
-                    child: ListView.builder(
-                      itemCount: listModel.length,
-                      itemBuilder: (context, idx) {
-                        final model = listModel.elementAt(idx);
-                        return InkWell(
-                          onTap: () {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            onSelected(model);
-                          },
-                          child: Container(
-                            color: (idx % 2 == 1)
-                                ? Colors.blue.withOpacity(0.2)
-                                : null,
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    model.evProductCode ?? "",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      model.evProductDescription ?? "",
+                color: Constants.colorAppBarBg,
+                child: OverflowBox(
+                  alignment: Alignment.topLeft,
+                  minWidth: optionsWidth,
+                  maxWidth: optionsWidth,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Constants.greenDark),
+                      color: Constants.colorAppBarBg,
+                    ),
+                    width: optionsWidth,
+                    height: 500,
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeTop: true,
+                      child: ListView.builder(
+                        itemCount: listModel.length,
+                        itemBuilder: (context, idx) {
+                          final model = listModel.elementAt(idx);
+                          return InkWell(
+                            onTap: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              onSelected(model);
+                            },
+                            child: Container(
+                              // color: (idx % 2 == 1)
+                              //     ? Colors.blue.withOpacity(0.2)
+                              //     : null,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      model.evProductCode ?? "",
                                       style: const TextStyle(
-                                          fontSize: 16,
-                                          overflow: TextOverflow.ellipsis),
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                  )
-                                ],
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        model.evProductDescription ?? "",
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            overflow: TextOverflow.ellipsis),
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -154,12 +165,12 @@ class FxAutoCompletionProduct extends HookConsumerWidget {
             );
           },
           optionsBuilder: (editingValue) async {
-            if (editingValue.text == "") {
-              return [];
-            }
-            if (editingValue.text.length >= 10) {
-              return [];
-            }
+            // if (editingValue.text == "") {
+            //   return [];
+            // }
+            // if (editingValue.text.length >= 10) {
+            //   return [];
+            // }
             try {
               cancelToken.value.cancel("Cancel Mine");
               cancelToken.value = CancelToken();

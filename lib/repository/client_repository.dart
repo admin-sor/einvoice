@@ -32,8 +32,28 @@ class ClientRepository extends BaseRepository {
     return list;
   }
 
+  Future<List<ClientModel>> searchWithOwn({
+    required String query,
+  }) async {
+    const service = "client/search";
+    final param = {
+      "query": query,
+      "with_own": "X",
+    };
+    final resp = await postWoToken(param: param, service: service);
+    final List<ClientModel> list = [];
+    if (resp["data"] is List) {
+      resp["data"].forEach((e) {
+        final model = ClientModel.fromJson(e);
+        list.add(model);
+      });
+    }
+    return list;
+  }
+
   /// Adds a new client.
   Future<bool> add({
+    required String evClientType,
     required String evClientName,
     required String evClientBusinessRegNo,
     required String evClientBusinessRegType,
@@ -49,6 +69,7 @@ class ClientRepository extends BaseRepository {
   }) async {
     const service = "client/add";
     final param = {
+      "evClientType": evClientType,
       "evClientName": evClientName,
       "evClientBusinessRegNo": evClientBusinessRegNo,
       "evClientBusinessRegType": evClientBusinessRegType,
@@ -70,6 +91,7 @@ class ClientRepository extends BaseRepository {
   /// Edits an existing client.
   Future<bool> edit({
     required int evClientID, // Assuming int based on typical IDs
+    required String evClientType,
     required String evClientName,
     required String evClientBusinessRegNo,
     required String evClientBusinessRegType,
@@ -86,6 +108,7 @@ class ClientRepository extends BaseRepository {
     const service = "client/edit";
     final param = {
       "evClientID": evClientID,
+      "evClientType": evClientType,
       "evClientName": evClientName,
       "evClientBusinessRegNo": evClientBusinessRegNo,
       "evClientBusinessRegType": evClientBusinessRegType,

@@ -176,16 +176,28 @@ class ProductEditScreen extends HookConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Expanded(
-                      child: FxButton(
-                        title: "Cancel",
-                        color: Constants.red,
-                        onPress: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
+                    const Expanded(
+                      child: SizedBox(width: 10),
                     ),
                     const SizedBox(width: 20),
+                    if (product.evProductID != null && product.evProductID != "0")
+                      Expanded(
+                        child: FxButton(
+                          title: "Delete",
+                          color: Constants.red,
+                          onPress: () {
+                            ref.read(productDeleteProvider.notifier).delete(
+                                  productId: int.parse(product.evProductID!),
+                                  query: query,
+                                );
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                    if (product.evProductID != null && product.evProductID != "0")
+                      const SizedBox(
+                        width: 20,
+                      ),
                     Expanded(
                       child: FxButton(
                         title: "Save",
@@ -221,24 +233,6 @@ class ProductEditScreen extends HookConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    if (product.evProductID != null)
-                      Expanded(
-                        child: FxButton(
-                          title: "Delete",
-                          color: Constants.red,
-                          onPress: () {
-                            ref.read(productDeleteProvider.notifier).delete(
-                                  productId: int.parse(product.evProductID!),
-                                  query: query,
-                                );
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                    if (product.evProductID != null)
-                      const SizedBox(
-                        width: 20,
-                      )
                   ],
                 ),
                 const SizedBox(height: 20), // Add some space at the bottom

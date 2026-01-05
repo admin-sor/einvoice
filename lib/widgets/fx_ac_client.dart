@@ -74,6 +74,11 @@ class FxAcClient extends HookConsumerWidget {
           hintText: hintText,
           contentPadding: contentPadding,
           ctrl: ctrl,
+          suffix: Image.asset(
+            "images/icon_triangle_down.png",
+            height: 48,
+            width: 48,
+          ),
           onChanged: (v) {
             fcN.requestFocus();
           },
@@ -137,9 +142,9 @@ class FxAcClient extends HookConsumerWidget {
         );
       },
       optionsBuilder: (editingValue) async {
-        if (editingValue.text == "") {
-          return [];
-        }
+        // if (editingValue.text == "") {
+        //   return [];
+        // }
         try {
           cancelToken.value.cancel("Cancel Mine");
           cancelToken.value = CancelToken();

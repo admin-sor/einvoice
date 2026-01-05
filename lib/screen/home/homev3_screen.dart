@@ -90,23 +90,17 @@ class Homev3Screen extends HookConsumerWidget {
           ],
           iconTheme: const IconThemeData(color: Constants.colorAppBar),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(children: [
-                  const _HomeTitle(),
-                  const SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: _HomeUserLocation(
-                        name: loginModel.value?.name,
-                        storeID: selectedStore.value?["id"]),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    height: MediaQuery.of(context).size.height - 160,
-                    color: Constants.colorHomeV3TopBg,
+        body: Expanded(
+          child: Column(
+            children: [
+              Column(children: [
+                const _HomeTitle(),
+                const SizedBox(height: 20),
+                Container(
+                  height: MediaQuery.of(context).size.height - 160 - 30  ,
+                  color: Constants.colorHomeV3TopBg,
+                  child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
                     child: Column(children: [
                       const SizedBox(height: 30),
                       const Row(
@@ -153,14 +147,54 @@ class Homev3Screen extends HookConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          const SizedBox(width: 30),
+                          const Expanded(
+                            child: _CardGroupMenuFix(
+                              title: "Client",
+                              icon: "images/v3_client.png",
+                              route: clientRoute,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          const Expanded(
+                            child: _CardGroupMenuFix(
+                              title: "Supplier",
+                              icon: "images/icon_vendor_v3.png",
+                              route: supplierRoute,
+                            ),
+                          ),
+                          const SizedBox(width: 30),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          const SizedBox(width: 30),
+                          const Expanded(
+                            child: _CardGroupMenuFix(
+                              title: "Product",
+                              icon: "images/v3_product.png",
+                              route: productRoute,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          const Expanded(
+                            child: SizedBox.shrink(),
+                          ),
+                          const SizedBox(width: 30),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                     ]),
                   ),
-                  const SizedBox(height: 10),
-                ]),
-              ),
-            ),
-            const _HomeV3Footer(),
-          ],
+                ),
+                const SizedBox(height: 10),
+              ]),
+              const _HomeV3Footer(),
+            ],
+          ),
         ),
       ),
     );
@@ -328,6 +362,9 @@ class _CardGroupMenuFix extends HookConsumerWidget {
       onTap: () {
         if (route == selfBillRoute) {
           ref.read(selfBillIDProvider.notifier).state = "0";
+        }
+        if (route == invoiceRoute) {
+          ref.read(invoiceIDProvider.notifier).state = "0";
         }
         Navigator.of(context).pushNamed(route);
       },

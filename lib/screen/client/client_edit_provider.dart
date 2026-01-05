@@ -18,6 +18,7 @@ class ClientEditNotifier extends StateNotifier<ClientEditState> {
 
   void edit({
     required int evClientID,
+    required String evClientType,
     required String evClientName,
     required String evClientBusinessRegNo,
     required String evClientBusinessRegType,
@@ -41,6 +42,7 @@ class ClientEditNotifier extends StateNotifier<ClientEditState> {
       if (evClientID == 0) {
         await ClientRepository(dio: ref.read(dioProvider)).add(
           token: loginModel!.token!,
+          evClientType: evClientType,
           evClientName: evClientName,
           evClientBusinessRegNo: evClientBusinessRegNo,
           evClientBusinessRegType: evClientBusinessRegType,
@@ -58,6 +60,7 @@ class ClientEditNotifier extends StateNotifier<ClientEditState> {
         await ClientRepository(dio: ref.read(dioProvider)).edit(
           token: loginModel!.token!,
           evClientID: evClientID,
+          evClientType: evClientType,
           evClientName: evClientName,
           evClientBusinessRegNo: evClientBusinessRegNo,
           evClientBusinessRegType: evClientBusinessRegType,

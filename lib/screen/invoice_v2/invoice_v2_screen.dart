@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sor_inventory/screen/invoice_v2/lhdn_validation.dart';
 import 'package:sor_inventory/screen/invoice_v2/submit_lhdn_provider.dart';
+import 'package:sor_inventory/widgets/fx_text_area_field.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../model/client_model.dart';
 import '../../model/product_model.dart';
@@ -390,10 +391,11 @@ class InvoiceV2Screen extends HookConsumerWidget {
                     horiSpace,
                     Expanded(
                       child: FxTextField(
-                          labelText: "Invoice Date",
-                          readOnly: true,
-                          enabled: false,
-                          ctrl: ctrlInvoiceDate),
+                        labelText: "Invoice Date",
+                        readOnly: true,
+                        enabled: false,
+                        ctrl: ctrlInvoiceDate,
+                      ),
                       // FxDateField(
                       //   hintText: "Invoice Date",
                       //   labelText: "Invoice Date",
@@ -665,22 +667,23 @@ class InvoiceV2Screen extends HookConsumerWidget {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: SizedBox(
-                        width: screenWidth,
+                        width: screenWidth ,
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Column(
                             children: [
                               Row(
                                 mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // selectedProduct.value == null
                                   FxAutoCompletionProduct(
-                                    width: 310,
+                                    width: 120,
                                     ctrl: ctrlProduct,
                                     fc: fcProduct,
                                     errorMessage: errorMessageProduct.value,
                                     invoiceID: invoiceID,
-                                    labelText: "Product Code/Description",
+                                    labelText: "Product",
                                     hintText: "Search",
                                     value:
                                         selectedProduct.value?.evProductCode ??
@@ -725,10 +728,73 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                       // checkIsConfirmValid();
                                     },
                                   ),
+                                  horiSpace,
+                                  if (selectedProduct.value != null) Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: FxTextField(
+                                      width: 80,
+                                      focusNode: fcTotalItem,
+                                      textAlign: TextAlign.end,
+                                      onChanged: (val) {
+                                        try {
+                                          num xval =
+                                              nbf.parse(ctrlTotalItem.text);
+                                          if (xval > 0.0) {
+                                            showTotalQtyAmount.value = true;
+                                          } else {
+                                            showTotalQtyAmount.value = false;
+                                          }
+                                        } catch (e) {
+                                          showTotalQtyAmount.value = false;
+                                        }
+                                        doCalcTotal(ctrlPrice.text, val);
+                                      },
+                                      errorMessage: errorMessageQty.value,
+                                      showErrorMessage: true,
+                                      ctrl: ctrlTotalItem,
+                                      hintText: "Total Item",
+                                      labelText: "Total Item",
+                                      textInputType: TextInputType.number,
+                                    ),
+                                  ),
+                                  horiSpace,
+                                  if (selectedProduct.value != null)Padding(
+                                    padding: const EdgeInsets.only(top: 5.0),
+                                    child: FxTextField(
+                                      focusNode: fcPrice,
+                                      textAlign: TextAlign.end,
+                                      width: 100,
+                                      ctrl: ctrlPrice,
+                                      enabled: true,
+                                      hintText: "Unit Price",
+                                      labelText: "Unit Price",
+                                      onChanged: (val) {
+                                        doCalcTotal(val, ctrlTotalItem.text);
+                                      },
+                                      readOnly: false,
+                                      errorMessage: errorMessagePrice.value,
+                                    ),
+                                  ),
+                                  horiSpace,
+                                  (!showTotalQtyAmount.value)
+                                      ? SizedBox(width:120)
+                                      : Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 5.0),
+                                        child: FxTextField(
+                                          width: 130,
+                                          textAlign: TextAlign.end,
+                                          ctrl: ctrlTotalAmount,
+                                          readOnly: true,
+                                          enabled: false,
+                                          hintText: "Total Amount(RM)",
+                                          labelText: "Total Amount(RM)",
+                                        ),
+                                      ),
                                   if (selectedProduct.value != null) horiSpace,
                                   if (selectedProduct.value != null)
                                     Expanded(
-                                      child: FxTextField(
+                                      child: FxTextAreaField(
                                         hintText: "Description",
                                         labelText: "Description",
                                         ctrl: ctrlProductDesc,
@@ -738,145 +804,6 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                     ),
                                 ],
                               ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              if (selectedProduct.value != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 10.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      FxDateField(
-                                        width: 150,
-                                        height: 80,
-                                        contentPadding: EdgeInsets.zero,
-                                        hintText: "Date From",
-                                        labelText: "Date From",
-                                        dateValue: fromDate.value,
-                                        isFixedTitle: true,
-                                        firstDate: DateTime.now().subtract(
-                                          const Duration(
-                                            days: 365 * 2,
-                                          ),
-                                        ),
-                                        lastDate: DateTime.now().add(
-                                          const Duration(
-                                            days: 365 * 2,
-                                          ),
-                                        ),
-                                        onDateChange: (dt) {
-                                          fromDate.value = dt;
-                                        },
-                                      ),
-                                      horiSpace,
-                                      FxDateField(
-                                        width: 150,
-                                        height: 80,
-                                        contentPadding: EdgeInsets.zero,
-                                        hintText: "",
-                                        labelText: "Date To",
-                                        dateValue: toDate.value,
-                                        isFixedTitle: true,
-                                        firstDate: DateTime.now().subtract(
-                                          const Duration(
-                                            days: 365 * 2,
-                                          ),
-                                        ),
-                                        lastDate: DateTime.now().add(
-                                          const Duration(
-                                            days: 365 * 2,
-                                          ),
-                                        ),
-                                        onDateChange: (dt) {
-                                          toDate.value = dt;
-                                        },
-                                      ),
-                                      horiSpace,
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 5),
-                                        child: FxTextField(
-                                          width: materialCodeWidth,
-                                          focusNode: fcTotalItem,
-                                          textAlign: TextAlign.end,
-                                          onChanged: (val) {
-                                            try {
-                                              num xval =
-                                                  nbf.parse(ctrlTotalItem.text);
-                                              if (xval > 0.0) {
-                                                showTotalQtyAmount.value = true;
-                                              } else {
-                                                showTotalQtyAmount.value =
-                                                    false;
-                                              }
-                                            } catch (e) {
-                                              showTotalQtyAmount.value = false;
-                                            }
-                                            doCalcTotal(ctrlPrice.text, val);
-                                          },
-                                          errorMessage: errorMessageQty.value,
-                                          showErrorMessage: true,
-                                          ctrl: ctrlTotalItem,
-                                          hintText: "Total Item",
-                                          labelText: "Total Item",
-                                          textInputType: TextInputType.number,
-                                        ),
-                                      ),
-                                      horiSpace,
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 5.0),
-                                        child: FxTextField(
-                                          focusNode: fcPrice,
-                                          textAlign: TextAlign.end,
-                                          width: materialCodeWidth + 20,
-                                          ctrl: ctrlPrice,
-                                          enabled: true,
-                                          hintText: "Unit Price",
-                                          labelText: "Unit Price",
-                                          onChanged: (val) {
-                                            doCalcTotal(
-                                                val, ctrlTotalItem.text);
-                                          },
-                                          readOnly: false,
-                                          errorMessage: errorMessagePrice.value,
-                                        ),
-                                      ),
-                                      // horiSpace,
-                                      // FxTextField(
-                                      //   focusNode: fcUom,
-                                      //   textAlign: TextAlign.end,
-                                      //   width: materialCodeWidth,
-                                      //   ctrl: ctrlUom,
-                                      //   enabled: true,
-                                      //   hintText: "UOM",
-                                      //   labelText: "UOM",
-                                      //   readOnly: false,
-                                      // ),
-                                      horiSpace,
-                                      (!showTotalQtyAmount.value)
-                                          ? Expanded(
-                                              child: SizedBox(width: width25))
-                                          : Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5.0),
-                                                child: FxTextField(
-                                                  width: width25,
-                                                  textAlign: TextAlign.end,
-                                                  ctrl: ctrlTotalAmount,
-                                                  readOnly: true,
-                                                  enabled: false,
-                                                  hintText: "Total Amount(RM)",
-                                                  labelText: "Total Amount(RM)",
-                                                ),
-                                              ),
-                                            ),
-                                    ],
-                                  ),
-                                ),
                               const SizedBox(
                                 height: 10,
                               ),

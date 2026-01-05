@@ -10,7 +10,7 @@ import '../../model/client_model.dart'; // Import client model
 import '../../widgets/end_drawer.dart';
 import '../../widgets/fx_black_text.dart';
 import '../../widgets/fx_text_field.dart';
-import 'client_search_provider.dart';
+import 'client_search_with_own_provider.dart';
 
 class ClientScreen extends HookConsumerWidget {
   // Renamed class
@@ -30,21 +30,23 @@ class ClientScreen extends HookConsumerWidget {
     if (isInitLoading.value) {
       isInitLoading.value = false;
       WidgetsBinding.instance.addPostFrameCallback((tmr) {
-        ref.read(clientSearchProvider.notifier).search(query: ctrlSearch.text);
+        ref
+            .read(clientSearchWithOwnProvider.notifier)
+            .search(query: ctrlSearch.text);
       });
     }
 
     // Listen to client search provider
-    ref.listen(clientSearchProvider, (prev, next) {
-      if (next is ClientSearchStateLoading) {
+    ref.listen(clientSearchWithOwnProvider, (prev, next) {
+      if (next is ClientSearchWithOwnStateLoading) {
         isLoading.value = true;
-      } else if (next is ClientSearchStateError) {
+      } else if (next is ClientSearchWithOwnStateError) {
         isLoading.value = false;
         errorMessage.value = next.message;
         Timer(const Duration(seconds: 3), () {
           errorMessage.value = "";
         });
-      } else if (next is ClientSearchStateDone) {
+      } else if (next is ClientSearchWithOwnStateDone) {
         isLoading.value = false;
         listClient.value = next.model;
       }
@@ -135,7 +137,7 @@ class ClientScreen extends HookConsumerWidget {
                 suffix: InkWell(
                   onTap: () {
                     ref
-                        .read(clientSearchProvider.notifier)
+                        .read(clientSearchWithOwnProvider.notifier)
                         .search(query: ctrlSearch.text);
                   },
                   child: const Padding(
@@ -302,7 +304,7 @@ class _ClientDetailRow extends StatelessWidget {
     address += client.evClientAddr3 ?? "";
     address = address.trim();
     return Container(
-      color: isOdd ? null : Constants.greenLight.withOpacity(0.2),
+      // color: isOdd ? null : Constants.greenLight.withOpacity(0.2),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: Row(
