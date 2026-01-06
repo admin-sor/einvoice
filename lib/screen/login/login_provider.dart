@@ -40,13 +40,15 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
   }
 
   void checkLocalToken() async {
+    state = LoginStateInit();
     final loginModel = await ref.read(localAuthProvider.future);
     if (loginModel == null) {
       state = LoginStateNoToken();
       return;
     }
-    if (loginModel.screen != null)
+    if (loginModel.screen != null) {
       ref.read(screenProvider.notifier).state = loginModel.screen!;
+    }
     state = LoginStateDone(loginModel: loginModel);
     ref.read(listScreenGroupStateProvider.notifier).list();
   }
