@@ -93,92 +93,123 @@ class Homev3Screen extends HookConsumerWidget {
         body: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(children: [
-                  const _HomeTitle(),
-                  const SizedBox(height: 20),
-                  // Align(
-                  //   alignment: Alignment.centerLeft,
-                  //   child: _HomeUserLocation(
-                  //       name: loginModel.value?.name,
-                  //       storeID: selectedStore.value?["id"]),
-                  // ),
-                  // const SizedBox(height: 20),
-                  Container(
-                    height: MediaQuery.of(context).size.height - 160,
-                    color: Constants.colorHomeV3TopBg,
-                    child: Column(children: [
-                      const SizedBox(height: 30),
-                      const Row(
-                        children: [
-                          SizedBox(width: 30),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(children: [
+                          const _HomeTitle(),
+                          const SizedBox(height: 20),
+                          // Align(
+                          //   alignment: Alignment.centerLeft,
+                          //   child: _HomeUserLocation(
+                          //       name: loginModel.value?.name,
+                          //       storeID: selectedStore.value?["id"]),
+                          // ),
+                          // const SizedBox(height: 20),
                           Expanded(
-                            child: _CardGroupMenuFix(
-                              title: "Invoice",
-                              icon: "images/v3_po.png",
-                              route: invoiceRoute,
+                            child: Container(
+                              width: double.infinity,
+                              color: Constants.colorHomeV3TopBg,
+                              child: Column(children: [
+                                const SizedBox(height: 30),
+                                const Row(
+                                  children: [
+                                    SizedBox(width: 30),
+                                    Expanded(
+                                      child: _CardGroupMenuFix(
+                                        title: "Invoice",
+                                        icon: "images/v3_po.png",
+                                        route: invoiceRoute,
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    Expanded(
+                                      child: _CardGroupMenuFix(
+                                        title: "Invoice Summary",
+                                        icon: "images/v3_do.png",
+                                        route: invoiceSumRoute,
+                                      ),
+                                    ),
+                                    SizedBox(width: 30),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 30),
+                                    const Expanded(
+                                      child: _CardGroupMenuFix(
+                                        title: "Self Bill",
+                                        icon: "images/v3_po.png",
+                                        route: selfBillRoute,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    const Expanded(
+                                      child: _CardGroupMenuFix(
+                                        title: "Self Bill Summary",
+                                        icon: "images/v3_do.png",
+                                        route: selfBillSumRoute,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 30),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 30),
+                                    const Expanded(
+                                      child: _CardGroupMenuFix(
+                                        title: "Client",
+                                        icon: "images/v3_client.png",
+                                        route: clientRoute,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    const Expanded(
+                                      child: _CardGroupMenuFix(
+                                        title: "Supplier",
+                                        icon: "images/v3_supplier.png",
+                                        route: supplierRoute,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 30),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 30),
+                                    const Expanded(
+                                      child: _CardGroupMenuFix(
+                                        title: "Product",
+                                        icon: "images/v3_product.png",
+                                        route: clientRoute,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    const Expanded(
+                                      child: SizedBox(width: 20),
+                                    ),
+                                    const SizedBox(width: 30),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                              ]),
                             ),
                           ),
-                          SizedBox(width: 20),
-                          Expanded(
-                            child: _CardGroupMenuFix(
-                              title: "Invoice Summary",
-                              icon: "images/v3_do.png",
-                              route: invoiceSumRoute,
-                            ),
-                          ),
-                          SizedBox(width: 30),
-                        ],
+                          const SizedBox(height: 10),
+                        ]),
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          const SizedBox(width: 30),
-                          const Expanded(
-                            child: _CardGroupMenuFix(
-                              title: "Self Bill",
-                              icon: "images/v3_po.png",
-                              route: selfBillRoute,
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          const Expanded(
-                            child: _CardGroupMenuFix(
-                              title: "Self Bill Summary",
-                              icon: "images/v3_do.png",
-                              route: selfBillSumRoute,
-                            ),
-                          ),
-                          const SizedBox(width: 30),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          const SizedBox(width: 30),
-                          const Expanded(
-                            child: _CardGroupMenuFix(
-                              title: "Client",
-                              icon: "images/v3_client.png",
-                              route: clientRoute,
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          const Expanded(
-                            child: _CardGroupMenuFix(
-                              title: "Supplier",
-                              icon: "images/v3_supplier.png",
-                              route: supplierRoute,
-                            ),
-                          ),
-                          const SizedBox(width: 30),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                    ]),
-                  ),
-                  const SizedBox(height: 10),
-                ]),
+                    ),
+                  );
+                },
               ),
             ),
             const _HomeV3Footer(),
