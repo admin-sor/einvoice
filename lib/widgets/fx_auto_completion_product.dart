@@ -63,6 +63,7 @@ class FxAutoCompletionProduct extends HookConsumerWidget {
       },
     );
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RawAutocomplete<ProductModel>(
           focusNode: fc,

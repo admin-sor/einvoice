@@ -675,58 +675,60 @@ class InvoiceV2Screen extends HookConsumerWidget {
                               Row(
                                 mainAxisSize: MainAxisSize.max,
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   // selectedProduct.value == null
-                                  FxAutoCompletionProduct(
-                                    width: 120,
-                                    ctrl: ctrlProduct,
-                                    fc: fcProduct,
-                                    errorMessage: errorMessageProduct.value,
-                                    invoiceID: invoiceID,
-                                    labelText: "Product",
-                                    hintText: "Search",
-                                    value:
-                                        selectedProduct.value?.evProductCode ??
-                                            "",
-                                    onSelectedProduct: (model) {
-                                      FocusScope.of(context)
-                                          .requestFocus(FocusNode());
-                                      ctrlProductDesc.text =
-                                          model?.evProductDescription ?? "";
+                                  Expanded(
+                                    child: FxAutoCompletionProduct(
+                                      ctrl: ctrlProduct,
+                                      fc: fcProduct,
+                                      errorMessage: errorMessageProduct.value,
+                                      invoiceID: invoiceID,
+                                      labelText: "Product",
+                                      hintText: "Search",
+                                      value:
+                                          selectedProduct.value?.evProductCode ??
+                                              "",
+                                      onSelectedProduct: (model) {
+                                        FocusScope.of(context)
+                                            .requestFocus(FocusNode());
+                                        ctrlProductDesc.text =
+                                            model?.evProductDescription ?? "";
 
-                                      if (model == null) {
-                                        ctrlUom.text = "";
-                                        selectedProduct.value = null;
-                                        ctrlTotalItem.text = "0";
-                                        ctrlPrice.text = "0.00";
-                                        ctrlTotalAmount.text = "0.00";
-                                      } else {
-                                        selectedProduct.value = model;
-                                        ctrlUom.text =
-                                            model.evProductUnit ?? "";
-                                        ctrlTotalItem.text = "1";
-                                        ctrlPrice.text = nbfDec.format(
-                                            nbfDec.parse(model.evProductPrice ??
-                                                "0.00"));
-
-                                        doCalcTotal(
-                                            model.evProductPrice ?? "0.00",
-                                            "1");
-                                        showTotalQtyAmount.value = true;
-
-                                        if (model.evProductPrice == null ||
-                                            model.evProductPrice == "0.00") {
-                                          errorMessagePrice.value =
-                                              "Price not set";
-                                          Timer(const Duration(seconds: 3), () {
-                                            errorMessagePrice.value = "";
-                                          });
+                                        if (model == null) {
+                                          ctrlUom.text = "";
+                                          selectedProduct.value = null;
+                                          ctrlTotalItem.text = "0";
+                                          ctrlPrice.text = "0.00";
+                                          ctrlTotalAmount.text = "0.00";
                                         } else {
-                                          errorMessagePrice.value = "";
+                                          selectedProduct.value = model;
+                                          ctrlUom.text =
+                                              model.evProductUnit ?? "";
+                                          ctrlTotalItem.text = "1";
+                                          ctrlPrice.text = nbfDec.format(
+                                              nbfDec.parse(model.evProductPrice ??
+                                                  "0.00"));
+
+                                          doCalcTotal(
+                                              model.evProductPrice ?? "0.00",
+                                              "1");
+                                          showTotalQtyAmount.value = true;
+
+                                          if (model.evProductPrice == null ||
+                                              model.evProductPrice == "0.00") {
+                                            errorMessagePrice.value =
+                                                "Price not set";
+                                            Timer(const Duration(seconds: 3), () {
+                                              errorMessagePrice.value = "";
+                                            });
+                                          } else {
+                                            errorMessagePrice.value = "";
+                                          }
                                         }
-                                      }
-                                      // checkIsConfirmValid();
-                                    },
+                                        // checkIsConfirmValid();
+                                      },
+                                    ),
                                   ),
                                   horiSpace,
                                   if (selectedProduct.value != null) Padding(
@@ -791,8 +793,14 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                           labelText: "Total Amount(RM)",
                                         ),
                                       ),
-                                  if (selectedProduct.value != null) horiSpace,
-                                  if (selectedProduct.value != null)
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              if (selectedProduct.value != null)
+                                Row(
+                                  children: [
                                     Expanded(
                                       child: FxTextAreaField(
                                         hintText: "Description",
@@ -802,8 +810,8 @@ class InvoiceV2Screen extends HookConsumerWidget {
                                         enabled: true,
                                       ),
                                     ),
-                                ],
-                              ),
+                                  ],
+                                ),
                               const SizedBox(
                                 height: 10,
                               ),
